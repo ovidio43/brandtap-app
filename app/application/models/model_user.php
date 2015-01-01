@@ -156,6 +156,24 @@ class Model_user extends CI_Model
 		
 		$this->db->where('inst_id', $this->session->userdata('user_id'));
 		$this->db->update(TBL_USERS, $data);
+		if($brand == 1){
+			$this->send_welcome_mail_to_brand($email);
+		}
+		return true;
+	}
+
+	private function send_welcome_mail_to_brand($email)
+	{
+		$to = $email;
+		$subject = '[BrandTap] Welcome to BrandTap';
+		$message = 'Hi!<br><br>'
+			. 'Your registration on BrandTap.co has been succesfull. '
+			. 'Visit us on the next link to see your promotions and stats: ' 
+			. anchor(base_url(), 'BrandTap.com/app') . '<br><br>'
+			. 'Best regards<br>'
+			. 'BrandTap.co team';
+
+		send_mail($to, $subject, $message);
 	}
 
 	// Add activation code
