@@ -19,14 +19,16 @@
 		<div class="header">
 			<div class="row">
 				<div class="col-md-4">
-					<img src="<?= base_url()?>/img/logo.png"/>
+					<a href="<?=base_url()?>">
+						<img src="<?= base_url()?>/img/logo.png" />
+					</a>
 				</div>
 				<div class="col-md-5">
 					<h2>Headline, slogan or something</h2>
 				</div>
 				<div class="col-md-3">
 					<?php if(isset($loged_name)) : ?>
-						<p>Welcome @<?= $loged_name ?> | <a href="<?= site_url('user/logout') ?>">Logout</a></p
+						<p>Welcome @<?= $loged_name ?> | <a href="<?= site_url('user/logout') ?>">Logout</a></p>
 					<?php endif ?>
 				</div>
 			</div>

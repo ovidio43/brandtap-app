@@ -65,7 +65,7 @@ class User extends MY_Controller
 	}
 	
 	// Email activation page
-	public function emali_activation($code = '')
+	public function email_activation($code = '')
 	{
 		// Activation from link sent in mali
 		/*if($code != ''){
@@ -78,7 +78,7 @@ class User extends MY_Controller
 		
 		/*$this->title = "BrandTap";
 		$this->document_title = "";
-        $this->content = $this->view('user/emali_activation', $page_data);
+        $this->content = $this->view('user/email_activation', $page_data);
         $this->_show();*/
 	}
 
@@ -86,7 +86,16 @@ class User extends MY_Controller
 	public function logout()
 	{
 		$this->model_user->logout();
-		redirect('');
+		
+		$this->content = $this->view('user/logout');
+        $this->_show();
+	}
+
+	// Non-brand user will be redirected here!
+	public function registration_finished()
+	{
+		$this->content = $this->view('user/registration_finished');
+        $this->_show();
 	}
 }
 

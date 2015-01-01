@@ -72,6 +72,7 @@ class Model_user extends CI_Model
 		$this->load->helper('form');
 		
 		// Check email
+		$brand = $this->input->post('brand') == 1 ? 1 : 0;
 		$email = $this->input->post('email');
 		$regex = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/';
 		
@@ -89,14 +90,18 @@ class Model_user extends CI_Model
 			// Email message
 			//$message="Your Comfirmation link \r\n";
 			//$message.="Click on this link to activate your account \r\n";
-			//$message.= site_url('user/emali_activation/' . $code);
+			//$message.= site_url('user/email_activation/' . $code);
 		
 			//mail($to,$subject,$message,$header);
 			
 			// Add email to database
-			$this->add_email($email);
+			$this->add_email($email, $brand);
 			
-			redirect('user/profile');
+			if($brand == 1){
+				redirect('user/profile');
+			} else {
+				redirect('user/registration_finished');
+			}
 			// Add activation code for user
 			//$this->add_activation_code($code);
 			
@@ -142,10 +147,11 @@ class Model_user extends CI_Model
 	}
 	
 	// Adding user emeil
-	private function add_email($email)
+	private function add_email($email, $brand = 0)
 	{
 		$data = array(
-			'email' => $email
+			'email' => $email,
+			'brand' => $brand,
 		);
 		
 		$this->db->where('inst_id', $this->session->userdata('user_id'));
