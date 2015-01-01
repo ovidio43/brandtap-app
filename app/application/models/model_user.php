@@ -250,13 +250,14 @@ class Model_user extends CI_Model
 			$email = $this->get_user_email($inst_id);
 			
 			// Send activation link to user
-			$header = "From: no-reply@balkanoutsource.com\r\n";
-			$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-			$header .= "MIME-Version: 1.0\r\n";
-			$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-		
+			/* MOVED TO lib_Helper !
+				$header = "From: no-reply@balkanoutsource.com\r\n";
+				$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
+				$header .= "MIME-Version: 1.0\r\n";
+				$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+			*/
 			$to = $email;
-			$subject="HI " . $this->get_username($inst_id);
+			$subject = "[BrandTap] Dear " . $this->get_username($inst_id) . " you got a discount for $brand";
 		
 			// Email message
 			$message = "Thanks for liking or commenting on this post. Your discount code is:<br /><br />";
@@ -269,7 +270,7 @@ class Model_user extends CI_Model
 		
 			log_message('error', "$to , $subject, message , $header");
 
-			$mail_success = mail($to,$subject,$message,$header);
+			$mail_success = send_mail($to,$subject,$message);
 
 			log_message('error', 'mail success='.print_r($mail_success,1) );
 
