@@ -10,7 +10,7 @@
 	<!-- Bootstrap CDN -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="http://brandtap.co/app/application/views/style.css">
+        <link rel="stylesheet" type="text/css"href="http://brandtap.co/app/application/views/style.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 	
 </head>
