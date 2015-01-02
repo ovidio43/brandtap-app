@@ -10,6 +10,7 @@
 	<!-- Bootstrap CDN -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="http://brandtap.co/app/application/views/style.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 	
 </head>
@@ -20,7 +21,7 @@
 			<div class="row">
 				<div class="col-md-4">
 					<a href="<?=base_url()?>">
-						<img src="<?= base_url()?>/img/logo.png" />
+						<img id="site-logo" src="<?= base_url()?>/img/logo.png" />
 					</a>
 				</div>
 				<div class="col-md-5">
