@@ -72,7 +72,6 @@ class Model_user extends CI_Model
 		$this->load->helper('form');
 		
 		// Check email
-		$brand = $this->input->post('brand') == 1 ? 1 : 0;
 		$email = $this->input->post('email');
 		$regex = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/';
 		
@@ -90,18 +89,14 @@ class Model_user extends CI_Model
 			// Email message
 			//$message="Your Comfirmation link \r\n";
 			//$message.="Click on this link to activate your account \r\n";
-			//$message.= site_url('user/email_activation/' . $code);
+			//$message.= site_url('user/emali_activation/' . $code);
 		
 			//mail($to,$subject,$message,$header);
 			
 			// Add email to database
-			$this->add_email($email, $brand);
+			$this->add_email($email);
 			
-			if($brand == 1){
-				redirect('user/profile');
-			} else {
-				redirect('user/registration_finished');
-			}
+			redirect('user/profile');
 			// Add activation code for user
 			//$this->add_activation_code($code);
 			
@@ -147,33 +142,14 @@ class Model_user extends CI_Model
 	}
 	
 	// Adding user emeil
-	private function add_email($email, $brand = 0)
+	private function add_email($email)
 	{
 		$data = array(
-			'email' => $email,
-			'brand' => $brand,
+			'email' => $email
 		);
 		
 		$this->db->where('inst_id', $this->session->userdata('user_id'));
 		$this->db->update(TBL_USERS, $data);
-		if($brand == 1){
-			$this->send_welcome_mail_to_brand($email);
-		}
-		return true;
-	}
-
-	private function send_welcome_mail_to_brand($email)
-	{
-		$to = $email;
-		$subject = '[BrandTap] Welcome to BrandTap';
-		$message = 'Hi!<br><br>'
-			. 'Your registration on BrandTap.co has been succesfull. '
-			. 'Visit us on the next link to see your promotions and stats: ' 
-			. anchor(base_url(), 'BrandTap.com/app') . '<br><br>'
-			. 'Best regards<br>'
-			. 'BrandTap.co team';
-
-		send_mail($to, $subject, $message);
 	}
 
 	// Add activation code
@@ -274,14 +250,13 @@ class Model_user extends CI_Model
 			$email = $this->get_user_email($inst_id);
 			
 			// Send activation link to user
-			/* MOVED TO lib_Helper !
-				$header = "From: no-reply@balkanoutsource.com\r\n";
-				$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-				$header .= "MIME-Version: 1.0\r\n";
-				$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-			*/
+			$header = "From: no-reply@balkanoutsource.com\r\n";
+			$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
+			$header .= "MIME-Version: 1.0\r\n";
+			$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+		
 			$to = $email;
-			$subject = "[BrandTap] Dear " . $this->get_username($inst_id) . " you got a discount for $brand";
+			$subject="HI " . $this->get_username($inst_id);
 		
 			// Email message
 			$message = "Thanks for liking or commenting on this post. Your discount code is:<br /><br />";
@@ -294,7 +269,7 @@ class Model_user extends CI_Model
 		
 			log_message('error', "$to , $subject, message , $header");
 
-			$mail_success = send_mail($to,$subject,$message);
+			$mail_success = mail($to,$subject,$message,$header);
 
 			log_message('error', 'mail success='.print_r($mail_success,1) );
 

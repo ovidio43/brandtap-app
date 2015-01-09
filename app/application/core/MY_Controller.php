@@ -5,7 +5,7 @@ class MY_Controller extends CI_Controller
 	public $content = "**no content**";
 	
 	public $title = "";
-	public $document_title = "BrandTap";
+	public $document_title = "CONFFIRM";
 
 	public function __construct()
 	{

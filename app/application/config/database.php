@@ -48,10 +48,10 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = '<ENTER>';
-$db['default']['username'] = '<ENTER>';
-$db['default']['password'] = '<ENTER>';   
-$db['default']['database'] = '<ENTER>';
+$db['default']['hostname'] = 'localhost';
+$db['default']['username'] = 'mommyhot_appus';
+$db['default']['password'] = 'eK9S~b&);B?i';   
+$db['default']['database'] = 'mommyhot_app';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = FALSE;

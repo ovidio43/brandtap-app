@@ -1,4 +1,6 @@
+
 <script type="text/javascript">
+
     $(document).ready(function () {
         $('.btn-brand').click(function () {
 
@@ -17,7 +19,25 @@
     });
 
 </script>
-<div class="row j-content">
+<style type="text/css">
+    .btn-brand{ 
+        display: inline-block;
+        padding:30px;
+        border: 1px solid #333;
+        color: #333;
+        text-decoration: none;
+    }
+    .btn-brand:hover 
+    , .btn-brand:active{
+        text-decoration: none;
+    }
+    .btn-brand.active{ 
+        border: 1px solid orange; 
+        color: orange;
+    }
+</style>
+
+<div class="row">
     <h3>Email registration</h3>
     <?php echo form_open('user/email_activation', $form_atributes); ?>
     <div class="col-sm-4 col-sm-offset-4">

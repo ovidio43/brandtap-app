@@ -83,19 +83,3 @@ function set_active($page)
 
     return $is_active ? ' menu-active ' : "";
 }
-/**
-* Use this instead default PHP mail() function. 
-* Will make it easier later to change way of sending (SMTP, Ci email lib, etc.)
-@ return boolean
-**/
-function send_mail($to, $subject, $message, $header = null)
-{
-    if( $header == null){
-        $header = "From: no-reply@balkanoutsource.com\r\n";
-        $header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-        $header .= "MIME-Version: 1.0\r\n";
-        $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-    }
-
-    return mail($to,$subject,$message,$header);
-}
