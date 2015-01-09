@@ -40,7 +40,7 @@
                 </div>  
                 <div class="clear"></div>
         </div>
-    </div>
+    <!--</div>-->
 </footer>
 </div>
 </body>
