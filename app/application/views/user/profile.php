@@ -1,5 +1,9 @@
 
-<div class="row j-title">
+<div class="page-header text-left">
+    <h3>Dashboard <small>(List of your posts that use #BrandTap referral program)  <a href="http://www.btandtap.co">Back to the BrandTap.co site</a></small></h3>
+</div>
+
+<!--<div class="row j-title">
     <div class="col-md-12 text-left">
         <h1 class="pull-left">Dashboard</h1> 
         <p class="pull-left">(List of your posts that use #BrandTap referral program) </p>
@@ -7,7 +11,7 @@
             <a href="http://www.btandtap.co">Back to the BrandTap.co site</a>
         </h4>
     </div>
-</div>
+</div>-->
 <div role="tabpanel">
     <!--<ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
@@ -24,28 +28,33 @@
     -->
     <div class="tab-content">
         <div id="promotions" class="tab-pane active" role="tabpanel">           
-            <? if (count($media)): ?>    
+            <? if (count($media)): ?>   
                 <div class="j-data">
-                    <div class="row j-data-header">
+                    <!--<div class="row j-data-header">-->
+                    <div class="row alert alert-info">
                         <div class="col-md-4 text-left">
-                            <h2>Post details</h2>
+                            <h3>Post details</h3>
                         </div>
                         <div class="col-md-3 text-left">
-                            <h2>Winners</h2>
+                            <h3>Winners</h3>
                         </div>
                         <div class="col-md-3 text-left">
-                            <h2>Hashtags</h2>
+                            <h3>Hashtags</h3>
                         </div>
                         <div class="col-md-2 text-left">
-                            <h2>Stats</h2>
+                            <h3>Stats</h3>
                         </div>
                     </div>
                     <?php foreach ($media as $row) : ?>
                         <div class="row text-left j-row-data">                    
                             <div class="col-md-4">
                                 <div class="pull-left">
-                                    <img src="<?= $row['image'] ?>" />
-                                    <p><?= $row['date'] ?></p>
+                                    <a href="<?= $row['link'] ?>" class="thumbnail">
+                                        <img  src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
+                                    </a>
+
+                                                            <!--<img src="<?= $row['image'] ?>" />-->
+                                                            <p><?= $row['date'] ?></p>
                                 </div>
                                 <div class="pull-left">
                                     <p><?= $row['caption'] ?></p>
@@ -63,8 +72,8 @@
                                 <?php endforeach ?>		
                             </div>
                             <div class="col-md-2">                           
-                                <p><?= $row['likes'] ?></p>
-                                <p><?= $row['comments'] ?></p>
+                                <p><span class="badge badge-warning"><?= $row['likes'] ?></span></p>
+                                <p><span class="badge badge-info "><?= $row['comments'] ?></span></p>
                             </div>
                         </div>
                         <hr />

@@ -5,8 +5,11 @@
         <script src="http://code.jquery.com/jquery-latest.js"></script>
         <!-- Bootstrap CDN -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">    
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">   
+        <!-------------set style from http://brandtap.co  --------------->
+        <link href="http://brandtap.co/wp-content/themes/twentyten_base/style.css" media="all" type="text/css" rel="stylesheet">
+        <link href="http://brandtap.co/wp-content/themes/twentyten_base/css/common.css" rel="stylesheet">
+        <!---------------------------->
         <link rel="stylesheet" href="<?php echo base_url(); ?>css/custom.css" type="text/css" media="screen"/>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     </head>
@@ -40,8 +43,8 @@
                 </div>  
                 <div class="clear"></div>
         </div>
-    <!--</div>-->
-</footer>
+        <!--</div>-->
+    </footer>
 </div>
 </body>
 
