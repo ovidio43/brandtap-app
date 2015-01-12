@@ -10,7 +10,7 @@
         <link href="http://brandtap.co/wp-content/themes/twentyten_base/style.css" media="all" type="text/css" rel="stylesheet">
         <link href="http://brandtap.co/wp-content/themes/twentyten_base/css/common.css" rel="stylesheet">
         <!---------------------------->
-        <link rel="stylesheet" href="<?php echo base_url(); ?>css/custom.css" type="text/css" media="screen"/>
+        <link rel="stylesheet" href="<?php echo base_url(); ?>css/custom.css?v=<?= date('YmdHis');?>" type="text/css" media="screen"/>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     </head>
     <body>
@@ -26,10 +26,25 @@
                         <br>                        <br>                   
                         <h2>The new word of mouth</h2>
                     </div>
-                    <div class="col-md-3">
-                        <?php if (isset($loged_name)) : ?>
-                            <p>Welcome @<?= $loged_name ?> | <a href="<?= site_url('user/logout') ?>">Logout</a></p>
-                        <?php endif ?>
+                    <div class="col-md-3">                        
+                        <?php if (isset($loged_name)) : ?> 
+                            <h4>    
+                                <div class="dropdown">
+                                    <button class="btn  dropdown-toggle j-background-none j-full-width text-right" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">                                
+                                       Welcome: @<?= $loged_name ?>
+                                        <span class="caret"></span>
+                                    </button>
+
+                                    <ul class="dropdown-menu j-full-width" role="menu" aria-labelledby="dropdownMenu1">
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Preferences</a></li>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="<?= site_url('user/logout') ?>">Logout</a></li>     
+                                    </ul>
+                                </div>
+                            </h4>
+                        <?php endif ?> 
+                        <?php // if (isset($loged_name)) : ?>
+<!--<p>Welcome @<?= $loged_name ?> | <a href="<?= site_url('user/logout') ?>">Logout</a></p>-->
+                        <?php // endif ?>
                     </div>
                 </div>
             </div>
