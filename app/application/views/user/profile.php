@@ -1,7 +1,7 @@
 
-<div class="page-header text-left">
+<div class=" text-left">
     <h3><small>List of your posts that use #BrandTap referral program <a href="http://www.btandtap.co">Back to the BrandTap.co site</a></small></h3>
-</div>
+</div><br>
 <? if (count($media)) { ?>
     <div class="table-responsive">
         <table class="table table-bordered table-hover text-left">
@@ -39,8 +39,8 @@
                             <?php endforeach ?>	
                         </td>
                         <td>                       
-                            <p><span class="badge "><?= $row['likes'] ?></span></p>
-                            <p><span class="badge  "><?= $row['comments'] ?></span></p>
+                            <p><span class="badge"><?= $row['likes'] ?></span></p>
+                            <p><span class="badge"><?= $row['comments'] ?></span></p>
                         </td>                
                     </tr>
                 <?php } ?>

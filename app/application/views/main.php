@@ -14,7 +14,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div class="container-fluid">
+        <div class="container">
             <div class="header">
                 <div class="row">
                     <div class="col-md-4">
@@ -23,7 +23,7 @@
                         </a>
                     </div>
                     <div class="col-md-4">
-                        <img src="<?= base_url() ?>/img/slogan.png" />
+                        <!--<img src="<?= base_url() ?>/img/slogan.png" />-->
 <!--                        <br>                        <br>                   
                         <h2>The new word of mouth</h2>-->
                     </div>
