@@ -1,127 +1,59 @@
 
 <div class="page-header text-left">
-    <h3>Dashboard <small>(List of your posts that use #BrandTap referral program)  <a href="http://www.btandtap.co">Back to the BrandTap.co site</a></small></h3>
+    <h3><small>List of your posts that use #BrandTap referral program <a href="http://www.btandtap.co">Back to the BrandTap.co site</a></small></h3>
 </div>
-
-<!--<div class="row j-title">
-    <div class="col-md-12 text-left">
-        <h1 class="pull-left">Dashboard</h1> 
-        <p class="pull-left">(List of your posts that use #BrandTap referral program) </p>
-        <h4 class="pull-right">
-            <a href="http://www.btandtap.co">Back to the BrandTap.co site</a>
-        </h4>
-    </div>
-</div>-->
-<div role="tabpanel">
-    <!--<ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
-                    <a href="#promotions" role="tab" data-toggle="tab" aria-controls="promotions" aria-expanded="true">
-                            Promotions
-                    </a>
-            </li>
-            <li role="presentation">
-                    <a href="#discounts" role="tab" data-toggle="tab" aria-controls="discounts" aria-expanded="false">
-                            Discounts
-                    </a>
-            </li>
-    </ul>
-    -->
-    <div class="tab-content">
-        <div id="promotions" class="tab-pane active" role="tabpanel">           
-            <? if (count($media)): ?>   
-                <div class="j-data">
-                    <!--<div class="row j-data-header">-->
-                    <div class="row alert alert-info">
-                        <div class="col-md-4 text-left">
-                            <h3>Post details</h3>
-                        </div>
-                        <div class="col-md-3 text-left">
-                            <h3>Winners</h3>
-                        </div>
-                        <div class="col-md-3 text-left">
-                            <h3>Hashtags</h3>
-                        </div>
-                        <div class="col-md-2 text-left">
-                            <h3>Stats</h3>
-                        </div>
-                    </div>
-                    <?php foreach ($media as $row) : ?>
-                        <div class="row text-left j-row-data">                    
-                            <div class="col-md-4">
-                                <div class="pull-left">
-                                    <a href="<?= $row['link'] ?>" class="thumbnail">
-                                        <img  src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
-                                    </a>
-
-                                                            <!--<img src="<?= $row['image'] ?>" />-->
-                                                            <p><?= $row['date'] ?></p>
-                                </div>
-                                <div class="pull-left">
-                                    <p><?= $row['caption'] ?></p>
-                                    <p><a href="<?= $row['link'] ?>">View on Instagram</a></p>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <?php foreach ($row['winners'] as $user) : ?>
-                                    <p><?= $user ?></p>
-                                <?php endforeach ?>
-                            </div>
-                            <div class="col-md-3">
-                                <?php foreach ($row['hashtags'] as $tag) : ?>
-                                    <p><?= $tag ?></p>
-                                <?php endforeach ?>		
-                            </div>
-                            <div class="col-md-2">                           
-                                <p><span class="badge badge-warning"><?= $row['likes'] ?></span></p>
-                                <p><span class="badge badge-info "><?= $row['comments'] ?></span></p>
-                            </div>
-                        </div>
-                        <hr />
-                    <?php endforeach ?>
-                <? else: ?>
-                    <div class="row">
-                        <div class="col-md-4 text-left">
-                            <p style="margin:10px 0; font-weight: bold;">You have no promotions yet!</p>
-                        </div>
-                    </div>
-                <? endif ?>
-            </div>
-        </div>
-        <div id="discounts" class="tab-pane" role="tabpanel">
-            <div class="row">
-                <div class="col-md-4 text-left">
-                    <h2>Post details</h2>
-                </div>
-                <div class="col-md-3 text-left">
-                    <h2>Winners</h2>
-                </div>
-                <div class="col-md-3 text-left">
-                    <h2>Hashtags</h2>
-                </div>
-                <?php foreach ($media_user as $row) : ?>
-                    <div class="row">
-                        <div class="col-md-4 text-left">
-                            <div class="col-md-4">
-                                <img src="<?= $row['image'] ?>" />
+<? if (count($media)) { ?>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-left">
+            <thead>
+                <tr class="active">
+                    <th><?= strtoupper('Post details'); ?> </th>
+                    <th class="text-center"><?= strtoupper('Winners'); ?> </th>
+                    <th class="text-center"><?= strtoupper('Hashtags'); ?> </th>
+                    <th class="text-center"><?= strtoupper('Stats'); ?> </th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($media as $row) { ?>
+                    <tr>
+                        <td>
+                            <div class="pull-left">
+                                <a href="<?= $row['link'] ?>" class="thumbnail">
+                                    <img class="img-rounded img-responsive" src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
+                                </a>                            
                                 <p><?= $row['date'] ?></p>
                             </div>
-                            <div class="col-md-4">
+                            <div class="pull-left">
                                 <p><?= $row['caption'] ?></p>
                                 <p><a href="<?= $row['link'] ?>">View on Instagram</a></p>
                             </div>
-                        </div>
-                        <div class="col-md-3 text-left">
-                            <p><?= $row['winners'] ?></p>
-                        </div>
-                        <div class="col-md-3 text-left">
+                        </td>
+                        <td>
+                            <?php foreach ($row['winners'] as $user) : ?>
+                                <p><?= $user ?></p>
+                            <?php endforeach ?>
+                        </td>
+                        <td>
                             <?php foreach ($row['hashtags'] as $tag) : ?>
                                 <p><?= $tag ?></p>
-                            <?php endforeach ?>
-                        </div>
-                    </div>
-                    <hr />
-                <?php endforeach ?>
-            </div>
+                            <?php endforeach ?>	
+                        </td>
+                        <td>
+                            <p><kbd><?= $row['likes'] ?></kbd></p>
+                            <p><kbd><?= $row['comments'] ?></kbd></p>
+<!--                            <p><span class="badge "><?= $row['likes'] ?></span></p>
+                            <p><span class="badge  "><?= $row['comments'] ?></span></p>-->
+                        </td>                
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+<?php }else { ?>
+    <div class="row">
+        <div class="col-md-4 text-left">
+            <p style="margin:10px 0; font-weight: bold;">You have no promotions yet!</p>
         </div>
     </div>
-</div>
+<?php } ?>
+

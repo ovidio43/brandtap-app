@@ -14,7 +14,7 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div class="container">
+        <div class="container-fluid">
             <div class="header">
                 <div class="row">
                     <div class="col-md-4">
@@ -22,11 +22,12 @@
                             <img style="float: left; margin-top: 22px; height: 57px;" src="<?= base_url() ?>/img/logo.png" />
                         </a>
                     </div>
-                    <div class="col-md-5">
-                        <br>                        <br>                   
-                        <h2>The new word of mouth</h2>
+                    <div class="col-md-4">
+                        <img src="<?= base_url() ?>/img/slogan.png" />
+<!--                        <br>                        <br>                   
+                        <h2>The new word of mouth</h2>-->
                     </div>
-                    <div class="col-md-3">                        
+                    <div class="col-md-4">                        
                         <?php if (isset($loged_name)) : ?> 
                             <h4>    
                                 <div class="dropdown">
