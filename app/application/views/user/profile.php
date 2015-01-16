@@ -38,11 +38,9 @@
                                 <p><?= $tag ?></p>
                             <?php endforeach ?>	
                         </td>
-                        <td>
-                            <p><kbd><?= $row['likes'] ?></kbd></p>
-                            <p><kbd><?= $row['comments'] ?></kbd></p>
-<!--                            <p><span class="badge "><?= $row['likes'] ?></span></p>
-                            <p><span class="badge  "><?= $row['comments'] ?></span></p>-->
+                        <td>                       
+                            <p><span class="badge "><?= $row['likes'] ?></span></p>
+                            <p><span class="badge  "><?= $row['comments'] ?></span></p>
                         </td>                
                     </tr>
                 <?php } ?>
