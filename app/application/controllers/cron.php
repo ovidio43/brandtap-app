@@ -10,12 +10,13 @@ class Cron extends MY_Controller
 		$this->load->model('model_instagram');
 		$this->load->model('model_user');
 		$this->load->model('model_logs');
+		$this->load->model('model_paypal');
 	}
 	
 	public function index()
 	{
 		ob_start();
-		$data = array();
+		//$data = array();
 		
 		// Get all post with brandtap tag
 		$posts = $this->model_instagram->_recent_media_by_tag("brandtap");
@@ -37,13 +38,17 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 				$comment_users = array();
 				$like_users = array();
 				if($post->comments->count > 0){
-					foreach($post->comments->data as $user){
-						$comment_users[] = $user->from->id;
+					$comments = $this->model_instagram->_media_comments_list($post->id);
+					
+					foreach($comments->data as $comments_data){
+						$comment_users[] = $comments_data->from->id;
 					}
 				}
 				if($post->likes->count > 0){
-					foreach($post->likes->data as $user){
-						$like_users[] = $user->id;
+					$like = $this->model_instagram->_media_likes_list($post->id);
+					
+					foreach($like->data as $like_data){
+						$like_users[] = $like_data->id;
 					}
 				}
 				
@@ -73,7 +78,7 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 				}
 			//}
 		}
-		$this->model_logs->log('cron', "new winners: $cnt" );		
+		$this->model_logs->log('cron', "new winners: $cnt" );	
 
 		$ob = ob_get_contents();
 

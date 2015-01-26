@@ -1,6 +1,5 @@
 <?php
 
-
 function dump($var)
 {
 	echo '<pre>';

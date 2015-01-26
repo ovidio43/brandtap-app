@@ -5,9 +5,9 @@ if (!defined('BASEPATH'))
 
 class Model_instagram extends CI_Model {
 
-    private $_clientID = 'f4355450f7174714886e39ccc4beef42';
-    private $_clientSecret = '207c9b3eec124460970d51120bff7bdb';
-    private $_callBackURL = 'http://brandtap.co/app';
+    private $_clientID = '73574de5fd9a45f7abd3e561cceab304';
+    private $_clientSecret = '4e50aaedd961486d85c46906d3552c40';
+    private $_callBackURL = 'http://dev.balkanoutsource.com/projects/brandtap';
     private $_scopes = array('basic', 'likes', 'comments', 'relationships');
     private $_actions = array('follow', 'unfollow', 'block', 'unblock', 'approve', 'deny');
 
@@ -36,6 +36,19 @@ class Model_instagram extends CI_Model {
                 log_message('error', "code=$code , get_user_data() > data=" . print_r($user_data, 1));
                 redirect('');
             }
+			
+			$acces_token = $this->get_access_token();
+			$insert = array(
+					'name' => 'access_token_instagram',
+					'data' => $user_data->access_token
+				);
+			
+			if($acces_token === null){
+				$this->db->insert(TBL_OPTIONS, $insert);
+			} else {
+				$this->db->where('name', 'access_token_instagram');
+        		$this->db->update(TBL_OPTIONS, $insert);
+			}
 
             $this->session->set_userdata('access_token', $user_data->access_token);
             $this->session->set_userdata('user_id', $user_data->user->id);
@@ -84,9 +97,10 @@ class Model_instagram extends CI_Model {
         if ($authenticated === FALSE) {
             $authentication_method = '?client_id=' . $this->_clientID;
         } else {
-            $access_token = $this->session->userdata('access_token');
+            
+			$access_token = $this->get_access_token();
             if (isset($access_token)) {
-                $authentication_method = '?access_token=' . $access_token;
+                $authentication_method = '?access_token=' . $access_token->data;
             } else {
                 // Log error - this method requires an authenticated users access token
             }
@@ -127,6 +141,16 @@ class Model_instagram extends CI_Model {
     private function _user_recent_media($id = 'self', $limit = 0) {
         return $this->_API_call('users/' . $id . '/media/recent', ($id === 'self'), array('count' => $limit));
     }
+	
+	// Get likes for media
+	public function _media_likes_list($id){
+		return $this->_API_call('media/' . $id . '/likes', true);
+	}
+
+	// Get comments for media
+	public function _media_comments_list($id){
+		return $this->_API_call('media/' . $id . '/comments', false);
+	}
 
     // Get and prepare user recent media
     public function get_user_recent_media($limit = 0, $brand = FALSE, $user_name) {
@@ -156,6 +180,8 @@ class Model_instagram extends CI_Model {
                             'winners' => $this->get_winners($row->id),
                             'likes' => $row->likes->count . " Likes",
                             'comments' => $row->comments->count . " Comments",
+                            'id' => $row->id,
+                            'email_template' => $this->email_template_exists($row->id)
                         );
                     }
                 }
@@ -179,6 +205,8 @@ class Model_instagram extends CI_Model {
                                 'winners' => $this->get_winning_code_for_post($row->id, $user_data->from->id),
                                 'likes' => $row->likes->count . " Likes",
                                 'comments' => $row->comments->count . " Comments",
+                                'id' => $row->id,
+                                'email_template' => $this->email_template_exists($row->id)
                             );
                             $found = TRUE;
                             break;
@@ -202,6 +230,8 @@ class Model_instagram extends CI_Model {
                                     'winners' => $this->get_winning_code_for_post($row->id, $user_data->id),
                                     'likes' => $row->likes->count . " Likes",
                                     'comments' => $row->comments->count . " Comments",
+                                    'id' => $row->id,
+                                    'email_template' => $this->email_template_exists($row->id)
                                 );
                                 break;
                             }
@@ -216,15 +246,28 @@ class Model_instagram extends CI_Model {
 
     // Get post winners
     public function get_winners($post_id) {
-        $this->db->select(TBL_USERS . '.username,' . TBL_POST_WINNERS . '.code');
+        $this->db->select(TBL_USERS . '.username,' . TBL_USERS . '.email,' . TBL_POST_WINNERS . '.code');
         $this->db->from(TBL_USERS);
         $this->db->join(TBL_POST_WINNERS, TBL_POST_WINNERS . '.inst_id = ' . TBL_USERS . '.inst_id');
         $this->db->where(TBL_POST_WINNERS . '.post_id', $post_id);
         $query = $this->db->get();
 
         $winners = array();
+		$i = 0;
+		$j = 0;
         foreach ($query->result() as $row) {
-            $winners[] = '@' . $row->username . '(' . $row->code . ')';
+        	$i++;
+        	$message = '@' . $row->username . '(' . $row->code . ')';
+        	if($this->session->userdata('subscription_status') == 'Inactive' && $i <= 10){
+        		$message .= '<br />' . $row->email;
+				if($j == 0 && $i == 10){
+					$message .= '<br />
+						<a class="btn btn-default" href="' . site_url('user/subscribe') . '">Subscribe</a>';
+				}
+        	} else if($this->session->userdata('subscription_status') == 'Active'){
+        		$message .= '<br />' . $row->email;
+        	}
+            $winners[] = $message;
         }
 
         return $winners;
@@ -245,6 +288,27 @@ class Model_instagram extends CI_Model {
 
         return $code;
     }
+	
+	// Return access token if exists
+	private function get_access_token(){
+		
+		$row = $this->db->select('*')
+			->where('name', 'access_token_instagram')
+			->get(TBL_OPTIONS)
+			->row();
+			
+		return isset($row->name) ? $row : null;
+	}
+
+	// Check for email template
+	private function email_template_exists($post_id){
+		$row = $this->db->select('*')
+			->where('post_id', $post_id)
+			->get(TBL_EMAIL_TEMPLATE)
+			->row();
+			
+		return isset($row->post_id) ? TRUE : FALSE;
+	}
 
 }
 

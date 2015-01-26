@@ -9,6 +9,8 @@
 define("TBL_USERS", "users");
 define("TBL_ACTIVATION", "activation");
 define("TBL_POST_WINNERS", "post_winners");
+define("TBL_EMAIL_TEMPLATE", "email_template");
+define("TBL_OPTIONS", "options");
 
 /*
 /-------------------------------------------------------------------------
@@ -18,6 +20,16 @@ define("TBL_POST_WINNERS", "post_winners");
 define('INSTAGRAM_API_URL', 'https://api.instagram.com/v1/');
 define('INSTAGRAM_API_OAUTH_URL', 'https://api.instagram.com/oauth/authorize');
 define('INSTAGRAM_API_OAUTH_TOKEN_URL', 'https://api.instagram.com/oauth/access_token');
+
+/*
+/--------------------------------------------------------------------------
+/ PayPal
+/--------------------------------------------------------------------------
+*/
+
+define("PP_USERNAME", "maksa012-facilitator_api1.sbb.rs");
+define("PP_PASSWORD", "EE9P23KQ3FM8KK28");
+define("PP_SIGNATURE", "AiPC9BjkCyDFQXbSkoZcgqH3hpacAUZjPXbLDszjeNwAAsI2BMpAhIXB");
 
 /*
 |--------------------------------------------------------------------------

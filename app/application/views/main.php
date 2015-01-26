@@ -12,6 +12,8 @@
         <!---------------------------->
         <link rel="stylesheet" href="<?php echo base_url(); ?>css/custom.css?v=<?= date('YmdHis');?>" type="text/css" media="screen"/>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <!----------Ckeditor-------------->
+        <script type="text/javascript" src="<?= base_url() ?>third_party/ckeditor/ckeditor.js"></script>
     </head>
     <body>
         <div class="container">
@@ -54,7 +56,7 @@
             </div>
             <footer class="footer text-center">			         
                 <div style="padding: 15px 0;">
-                    <div>			<p>© 2014 BrandTap</p>
+                    <div>			<p>ï¿½ 2014 BrandTap</p>
                     </div>
                 </div>  
                 <div class="clear"></div>

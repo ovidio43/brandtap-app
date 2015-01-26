@@ -1,0 +1,28 @@
+
+
+CREATE TABLE `email_template` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `post_id` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `template` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `subject` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `sending_status` tinyint(4) NOT NULL DEFAULT '1',
+  `code_lenght` int(11) NOT NULL DEFAULT '20',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+DROP TABLE IF EXISTS `options`;
+CREATE TABLE `options` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `data` longtext COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+INSERT INTO `options` (`id`, `name`, `data`) VALUES
+(1,	'access_token_instagram',	'1595367120.73574de.95cb152eb65d43a79d776331ca781edd'),
+(2, 'free_code', '0123456789');
+
+DROP TABLE IF EXISTS `access_token`;
+
+ALTER TABLE `users` ADD `payment_profile_id` VARCHAR(45) NOT NULL AFTER `email`;

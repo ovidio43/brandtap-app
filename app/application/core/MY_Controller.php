@@ -22,7 +22,12 @@ class MY_Controller extends CI_Controller
 			$this->document_title = $this->title." | ".$this->document_title;
 		}
 
-		$loged_name = $this->model_user->get_username($this->session->userdata('user_id'));
+		$loged_name = $this->model_user->get_user($this->session->userdata('user_id'));
+		if(!isset($loged_name)){
+			$loged_name = null;
+		} else {
+			$loged_name = $loged_name->username;
+		}
 
 	    $this->load->view('main', array('content'        => $this->content,
 									    'title'          => $this->title,

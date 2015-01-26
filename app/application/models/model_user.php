@@ -216,60 +216,64 @@ class Model_user extends CI_Model {
     }
 
     // Add new winners
-    public function add_new_winners($users, $post_id, $brand) {
+    public function add_new_winners($users, $post_id, $brand, $test = FALSE) {
         foreach ($users as $inst_id) {
+        	
+			// Get email data
+            $email_data = $this->get_email_template($post_id);
+			if($email_data['status'] == 1 || $test){
 
-            $code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 20);
+				$user = $this->get_user($inst_id);
+				
+				if(!$test){
+					$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $email_data['code_lenght']);
+					
+					$data = array(
+                		'post_id' => $post_id,
+                		'inst_id' => $inst_id,
+                		'code' => $code
+            		);
 
-            $data = array(
-                'post_id' => $post_id,
-                'inst_id' => $inst_id,
-                'code' => $code
-            );
+            		$this->db->insert(TBL_POST_WINNERS, $data);	
+					
+					// Subject
+					$subject = str_replace('{name}', $user->username, $email_data['subject']);
+					$subject = str_replace('{brand}', $brand, $subject);
+			
+					// Message
+					$message = str_replace('{name}', $user->username, $email_data['message']);
+					$message = str_replace('{coupon_code}', $code, $message);
+					$message = str_replace('{brand}', $brand, $message);
+				} else {
+					$message = $email_data['message'];
+					$subject = $email_data['subject'];
+				}
 
-            $this->db->insert(TBL_POST_WINNERS, $data);
+            	// Send activation link to user
+            	$header = "From: no-reply@balkanoutsource.com\r\n";
+            	$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
+            	$header .= "MIME-Version: 1.0\r\n";
+            	$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-            $email = $this->get_user_email($inst_id);
+				$to = $user->email;
 
-            // Send activation link to user
-            $header = "From: no-reply@balkanoutsource.com\r\n";
-            $header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-            $header .= "MIME-Version: 1.0\r\n";
-            $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+            	log_message('error', "$to , $subject, message , $header");
 
-            $to = $email;
-            $subject = "HI " . $this->get_username($inst_id);
+            	$mail_success = mail($to, $subject, $message, $header);
 
-            // Email message
-            $message = "Thanks for liking or commenting on this post. Your discount code is:<br /><br />";
-            $message .= $code . "<br /><br />";
-            $message .= "To use it, you need to show it when paying " . $brand . " product/service.<br /><br />";
-            $message .= "Enoy and tell your friends!<br /><br />";
-            $message .= "BrandTap team<br />";
-            $message .= "Website: www.brandtap.co<br />";
-            $message .= "Email: info@brandtap.co";
-
-            log_message('error', "$to , $subject, message , $header");
-
-            $mail_success = mail($to, $subject, $message, $header);
-
-            log_message('error', 'mail success=' . print_r($mail_success, 1));
-
-            if ($mail_success) {
-                return true;
+            	log_message('error', 'mail success=' . print_r($mail_success, 1));
             }
-            return false;
         }
     }
 
     // Get user username
-    public function get_username($inst_id) {
-        $row = $this->db->select('username')
+    public function get_user($inst_id) {
+        $row = $this->db->select('*')
                 ->where('inst_id', $inst_id)
                 ->get(TBL_USERS)
                 ->row();
 
-        return isset($row->username) ? $row->username : null;
+        return isset($row->username) ? $row : null;
     }
 
     // Check if user is brand
@@ -288,6 +292,113 @@ class Model_user extends CI_Model {
         $this->session->unset_userdata('access_token');
         $this->session->unset_userdata('user_id');
     }
+	
+	// Email template
+	public function get_email_template($post_id = 0, $ajax = FALSE){
+		
+		$email_data = $this->email_template_exists($post_id);
+		
+		// If message = 0 get default template
+		if($email_data === 0){
+			$message = 'Thanks for liking or commenting on this post. Your discount code is:<br /><br />' .
+				'{coupon_code}<br /><br />' .
+				'To use it, you need to show it when paying {brand} product/service.<br /><br />' .
+				'Enoy and tell your friends!<br /><br />' .
+				'BrandTap team<br />' .
+				'Website: www.brandtap.co<br />' .
+				'Email: info@brandtap.co';
+			$subject = 'Hi {name}';
+			$status = 1;
+			$code_lenght = 20;
+		} else {
+			$message = $email_data->template;
+			$subject = $email_data->subject;
+			$status = $email_data->sending_status;
+			$code_lenght = $email_data->code_lenght;
+		}
+		
+		$data = array(
+			'message' => $message,
+			'subject' => $subject,
+			'status' => $status,
+			'code_lenght' => $code_lenght
+		);
+		
+		// Check if ajax call
+		if($ajax){
+			return json_encode($data);
+		} else {
+			return $data;
+		}
+	}
+	
+	// Check if email template exists
+	public function email_template_exists($post_id){
+		
+		$row = $this->db->select('template,subject,sending_status,code_lenght')
+			->where('post_id', $post_id)
+			->get(TBL_EMAIL_TEMPLATE)
+			->row();
+		
+		return isset($row->template) ? $row : 0;
+	}
+
+	// Save new template
+	public function save_email_template($message, $post_id, $subject, $status, $code_lenght){
+		
+		// Prepare data
+		$data = array(
+			'post_id' => $post_id,
+			'template' => $message,
+			'subject' => $subject,
+			'sending_status' => $status,
+			'code_lenght' => $code_lenght
+		);
+		
+		if($this->email_template_exists($post_id) === 0){
+			$this->db->insert(TBL_EMAIL_TEMPLATE, $data);	
+		} else {
+			$this->db->where('post_id', $post_id);
+        	$this->db->update(TBL_EMAIL_TEMPLATE, $data);
+		}
+	}
+	
+	// Activate free user with code
+	public function free_code_activation(){
+		
+		$this->load->helper('form');
+		
+		$code = $this->input->post('free_code');
+		$stored_code = $this->get_free_code();
+		
+		if($stored_code != null && $stored_code->data === $code){
+			$this->activate_free_user();
+			redirect('user/profile');
+		} else {
+			redirect('user/subscribe');
+		}
+	}
+	
+	// Get free code
+	public function get_free_code(){
+		$row = $this->db->select('*')
+			->where('name', 'free_code')
+			->get(TBL_OPTIONS)
+			->row();
+			
+		return isset($row->name) ? $row : null;
+	}
+	
+	// Activate free user
+	public function activate_free_user(){
+		
+		$user_id = $this->session->userdata('user_id');
+		$update = array(
+			'payment_profile_id' => 'Free'
+		);
+		$this->db->where('inst_id', $user_id);
+		$this->db->update(TBL_USERS, $update);
+	}
 
 }
 

@@ -11,6 +11,8 @@ class User extends MY_Controller {
         // Loading models
         $this->load->model('model_instagram');
         $this->load->model('model_user');
+		$this->load->model('model_paypal');
+		$this->load->model('model_upload');
     }
 
     // User profile page
@@ -24,15 +26,28 @@ class User extends MY_Controller {
                 redirect('user/register_email');
             }
         }
+		
+		$user = $this->model_user->get_user($this->session->userdata('user_id'));
+		
+		$this->model_upload->create_upload_dir($user->inst_id);
+		
+		if($user->payment_profile_id === 'Free'){
+			$this->session->set_userdata('subscription_status', 'Active');
+		} else {
+			$this->session->set_userdata('subscription_status', 
+				$this->model_paypal->get_payment_status($user->payment_profile_id));
+		}
+		
         // Get recent media where user is brand
-        $media_brand = $this->model_instagram->get_user_recent_media(10, TRUE, $this->model_user->get_username($this->session->userdata('user_id')));
+        $media_brand = $this->model_instagram->get_user_recent_media(10, TRUE, $user->username);
 
         // Get recent media where user get discount
-        $media_user = $this->model_instagram->get_user_recent_media(10, FALSE, $this->model_user->get_username($this->session->userdata('user_id')));
-
+        $media_user = $this->model_instagram->get_user_recent_media(10, FALSE, $user->username);
+		
+		// Page data
         $data = array(
             'media' => $media_brand,
-            'media_user' => $media_user
+            'media_user' => $media_user,
         );
 
         $this->title = "BrandTap";
@@ -90,6 +105,49 @@ class User extends MY_Controller {
         $this->content = $this->view('user/registration_finished');
         $this->_show();
     }
+	
+	// Get email template
+	public function get_email_template(){	
+		echo $this->model_user->get_email_template($_POST['post_id'], TRUE);
+	}
+	
+	// Save email template
+	public function save_email_template(){
+		$this->model_user->save_email_template($_POST['message'], $_POST['post_id'], $_POST['subject'], $_POST['status'], $_POST['code_lenght']);
+		echo 0;
+	}
+	
+	// Test email template
+	public function test_email_template(){
+		$this->model_user->add_new_winners(array($this->session->userdata('user_id')), $_POST['post_id'], '', TRUE);
+		echo 0;
+	}
+
+	// Subscribe page
+	public function subscribe(){
+		
+		if( ! $this->model_user->is_user_logedin()){
+			redirect('');
+		}
+		
+		// Page data
+        $page_data = array(
+            'form_atributes' => array(
+                'role' => 'form',
+                'class' => 'form-horizontal'
+            )
+		);
+		
+		$this->title = "BrandTap";
+        $this->document_title = "Subscribe";
+        $this->content = $this->view('user/subscribe', $page_data);
+        $this->_show();
+	}
+	
+	// Free code 
+	public function free_code(){
+		$this->model_user->free_code_activation();
+	}
 
 }
 
