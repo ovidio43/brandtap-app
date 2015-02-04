@@ -7,7 +7,7 @@ class Model_instagram extends CI_Model {
 
     private $_clientID = '73574de5fd9a45f7abd3e561cceab304';
     private $_clientSecret = '4e50aaedd961486d85c46906d3552c40';
-    private $_callBackURL = 'http://dev.balkanoutsource.com/projects/brandtap';
+    private $_callBackURL = INSTAGRAM_API_REDIRECT_URI;
     private $_scopes = array('basic', 'likes', 'comments', 'relationships');
     private $_actions = array('follow', 'unfollow', 'block', 'unblock', 'approve', 'deny');
 
@@ -156,12 +156,17 @@ class Model_instagram extends CI_Model {
     public function get_user_recent_media($limit = 0, $brand = FALSE, $user_name) {
         // If user is brand get his posts else get by tag
         if ($brand) {
-            $data = $this->_user_recent_media('self', $limit);
+            $data = $this->_user_recent_media($this->session->userdata('user_id'), $limit);
         } else {
             $data = $this->_recent_media_by_tag('brandtap');
         }
 
         $output = array();
+
+        if( ! isset($data->data) or ! is_array($data->data)){
+            return $output;
+        }
+
         // Prepare data for page
         foreach ($data->data as $row) {
 
@@ -170,18 +175,20 @@ class Model_instagram extends CI_Model {
 
                 foreach ($row->tags as $tag) {
                     if ($tag === 'brandtap') {
-
+						
+						$like_comments_winers_data = $this->get_winners($row->id);
+						
                         $output[] = array(
-                            'image' => $row->images->thumbnail->url,
-                            'date' => date('Y-m-d g:i a', $row->created_time),
+                            'image' => $row->images->low_resolution->url,
+                            'date' => date('m-d-Y g:i a', $row->created_time),
                             'caption' => $row->caption->text,
                             'link' => $row->link,
                             'hashtags' => $row->tags,
-                            'winners' => $this->get_winners($row->id),
-                            'likes' => $row->likes->count . " Likes",
-                            'comments' => $row->comments->count . " Comments",
+                            'winners' => $like_comments_winers_data['winners'],
+                            'likes' => $like_comments_winers_data['like'] . " Likes",
+                            'comments' => $like_comments_winers_data['commnets'] . " Comments",
                             'id' => $row->id,
-                            'email_template' => $this->email_template_exists($row->id)
+                            'sending_status' => $this->sending_status($row->id)
                         );
                     }
                 }
@@ -198,7 +205,7 @@ class Model_instagram extends CI_Model {
                         if ($this->session->userdata('user_id') == $user_data->from->id) {
                             $output[] = array(
                                 'image' => $row->images->thumbnail->url,
-                                'date' => date('Y-m-d g:i a', $row->created_time),
+                                'date' => date('m-d-Y g:i a', $row->created_time),
                                 'caption' => $row->caption->text,
                                 'link' => $row->link,
                                 'hashtags' => $row->tags,
@@ -206,7 +213,7 @@ class Model_instagram extends CI_Model {
                                 'likes' => $row->likes->count . " Likes",
                                 'comments' => $row->comments->count . " Comments",
                                 'id' => $row->id,
-                                'email_template' => $this->email_template_exists($row->id)
+                                'sending_status' => $this->sending_status($row->id)
                             );
                             $found = TRUE;
                             break;
@@ -223,7 +230,7 @@ class Model_instagram extends CI_Model {
                             if ($this->session->userdata('user_id') == $user_data->id) {
                                 $output[] = array(
                                     'image' => $row->images->thumbnail->url,
-                                    'date' => date('Y-m-d g:i a', $row->created_time),
+                                    'date' => date('m-d-Y g:i a', $row->created_time),
                                     'caption' => $row->caption->text,
                                     'link' => $row->link,
                                     'hashtags' => $row->tags,
@@ -231,7 +238,7 @@ class Model_instagram extends CI_Model {
                                     'likes' => $row->likes->count . " Likes",
                                     'comments' => $row->comments->count . " Comments",
                                     'id' => $row->id,
-                                    'email_template' => $this->email_template_exists($row->id)
+                                    'sending_status' => $this->sending_status($row->id)
                                 );
                                 break;
                             }
@@ -246,31 +253,58 @@ class Model_instagram extends CI_Model {
 
     // Get post winners
     public function get_winners($post_id) {
-        $this->db->select(TBL_USERS . '.username,' . TBL_USERS . '.email,' . TBL_POST_WINNERS . '.code');
+        $this->db->select(TBL_USERS . '.username,' . TBL_USERS . '.email,' . TBL_POST_WINNERS . '.code,' . TBL_POST_WINNERS . '.type');
         $this->db->from(TBL_USERS);
         $this->db->join(TBL_POST_WINNERS, TBL_POST_WINNERS . '.inst_id = ' . TBL_USERS . '.inst_id');
         $this->db->where(TBL_POST_WINNERS . '.post_id', $post_id);
         $query = $this->db->get();
 
         $winners = array();
+		$like = 0;
+		$comments = 0;
 		$i = 0;
 		$j = 0;
         foreach ($query->result() as $row) {
+        	$data = array(
+        		'username' => '@' . $row->username . '<br />',
+        		'code' => '<span data-toggle="tooltip" data-placement="top" title="' . $row->code . '">' . (substr($row->code, 0, 12)) . 
+        			'...</span><br />'
+			);
         	$i++;
-        	$message = '@' . $row->username . '(' . $row->code . ')';
-        	if($this->session->userdata('subscription_status') == 'Inactive' && $i <= 10){
-        		$message .= '<br />' . $row->email;
-				if($j == 0 && $i == 10){
-					$message .= '<br />
-						<a class="btn btn-default" href="' . site_url('user/subscribe') . '">Subscribe</a>';
+        	if($this->session->userdata('subscription_status') == 'Inactive' && $i <= EMAIL_PREVIEW_FREE_LIMIT){
+				$data['email'] = $row->email . '<br />';
+				if($j == 0 && $i == EMAIL_PREVIEW_FREE_LIMIT){
+					$data['email'] .= '<br />'
+                        . 'As a FREE user you are limited to see only '
+                        . EMAIL_PREVIEW_FREE_LIMIT.' email(s). To view all of them, please subscribe.<br>'
+                        . '<a href="' . site_url('user/subscribe') . '">'
+                        . '<b>Subscribe</b></a>';
+					$j++;
 				}
         	} else if($this->session->userdata('subscription_status') == 'Active'){
-        		$message .= '<br />' . $row->email;
+        		$data['email'] = $row->email . '<br />';
         	}
-            $winners[] = $message;
+            $winners[] = $data;
+			if($row->type == 'C'){
+				$comments++;
+			} else if($row->type == 'L'){
+				$like++;
+			}
         }
+		
+		if(empty($winners)){
+			$winners[] = array(
+				'username' => '',
+				'code' => '',
+				'email' => ''
+			);
+		}
 
-        return $winners;
+        return array(
+        	'winners' => $winners,
+        	'like' => $like,
+        	'commnets' => $comments
+		);
     }
 
     // Get winning code for user
@@ -307,7 +341,17 @@ class Model_instagram extends CI_Model {
 			->get(TBL_EMAIL_TEMPLATE)
 			->row();
 			
-		return isset($row->post_id) ? TRUE : FALSE;
+		return isset($row->sending_status) ? $row : FALSE;
+	}
+	
+	private function sending_status($post_id){
+		$template = $this->email_template_exists($post_id);
+		
+		if($template){
+			return $template->sending_status == 1 ? TRUE : FALSE;
+		} else {
+			return FALSE;
+		}
 	}
 
 }

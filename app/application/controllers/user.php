@@ -28,7 +28,7 @@ class User extends MY_Controller {
         }
 		
 		$user = $this->model_user->get_user($this->session->userdata('user_id'));
-		
+        		
 		$this->model_upload->create_upload_dir($user->inst_id);
 		
 		if($user->payment_profile_id === 'Free'){
@@ -84,7 +84,8 @@ class User extends MY_Controller {
           $page_data = $this->model_user->send_activation_link();
           } */
 
-        $this->model_user->send_activation_link();
+        //$this->model_user->send_activation_link();
+          $this->model_user->email_activation();
 
         /* $this->title = "BrandTap";
           $this->document_title = "";
@@ -113,7 +114,7 @@ class User extends MY_Controller {
 	
 	// Save email template
 	public function save_email_template(){
-		$this->model_user->save_email_template($_POST['message'], $_POST['post_id'], $_POST['subject'], $_POST['status'], $_POST['code_lenght']);
+		$this->model_user->save_email_template($_POST['message'], $_POST['post_id'], $_POST['subject'], $_POST['code_lenght']);
 		echo 0;
 	}
 	
@@ -121,6 +122,16 @@ class User extends MY_Controller {
 	public function test_email_template(){
 		$this->model_user->add_new_winners(array($this->session->userdata('user_id')), $_POST['post_id'], '', TRUE);
 		echo 0;
+	}
+
+	// Email sending status
+	public function email_sending_status_change(){
+		$this->model_user->email_sending_status_change($_POST['post_id'], $_POST['status']);
+		if($_POST['status'] == 1){
+			echo 1;
+		} else {
+			echo 0;
+		}
 	}
 
 	// Subscribe page

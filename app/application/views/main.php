@@ -52,15 +52,15 @@
                 </div>
             </div>
             <div class="text-center">
+                <p>&nbsp;</p>
                 <?= $content ?>
             </div>
-            <footer class="footer text-center">			         
-                <div style="padding: 15px 0;">
-                    <div>			<p>� 2014 BrandTap</p>
-                    </div>
-                </div>  
-                <div class="clear"></div>
-        </div>
+       	</div>
+    <footer class="footer text-center" style="position: fixed; bottom: 0px; background: inherit; width: 100%">			         
+    	<div style="padding: 15px 0;">
+        	<p>Brand Tap 2015</p>
+       	</div>  
+       	<div class="clear"></div>
         <!--</div>-->
     </footer>
 </div>

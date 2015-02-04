@@ -70,6 +70,7 @@ class Model_user extends CI_Model {
 
         // Check email
         $email = $this->input->post('email');
+		$brand = $this->input->post('chbBrand');
         $regex = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$/';
 
         if (preg_match($regex, $email)) {
@@ -86,7 +87,7 @@ class Model_user extends CI_Model {
             //$message.= site_url('user/emali_activation/' . $code);
             //mail($to,$subject,$message,$header);
             // Add email to database
-            $this->add_email($email);
+            $this->add_email($email, $brand);
 
             redirect('user/profile');
             // Add activation code for user
@@ -95,6 +96,34 @@ class Model_user extends CI_Model {
         } else {
             redirect('user/register_email');
         }
+    }
+
+    public function email_activation()
+    {
+        $email = $this->input->post('email');
+        $brand = $this->input->post('chbBrand');
+
+        $this->load->library('form_validation');
+        $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+
+        if ($this->form_validation->run() !== FALSE){
+            $this->add_email($email, $brand);
+            $this->send_welcome_email($email);
+            redirect('user/profile');
+        } else {
+            redirect('user/register_email?error=Invalid+email+address');
+        }
+    }
+
+    public function send_welcome_email($email)
+    {
+        $to = $email;
+        $subject = WELCOME_EMAIL_SUBJECT;
+        //$message = "<p>Hi</p><p>Welcome to the best online tool ever... TESTING...</p>";
+        $message = $this->load->view('email/email_welcome', null, TRUE);
+
+        $mail_success = send_email($to,$subject,$message);
+        return $mail_success;
     }
 
     // User activation
@@ -132,9 +161,10 @@ class Model_user extends CI_Model {
     }
 
     // Adding user emeil
-    private function add_email($email) {
+    private function add_email($email, $brand) {
         $data = array(
-            'email' => $email
+            'email' => $email,
+            'brand' => $brand === 'on' ? 1 : 0
         );
 
         $this->db->where('inst_id', $this->session->userdata('user_id'));
@@ -159,7 +189,17 @@ class Model_user extends CI_Model {
 
     // Is user logedin
     public function is_user_logedin() {
-        return $this->session->userdata('user_id') > 0;
+
+        if($this->session->userdata('user_id') < 1){
+            return false;
+        }
+        
+        $user = $this->model_user->get_user($this->session->userdata('user_id'));
+        if( ! $user ){
+            return false;
+        }
+
+        return true;
     }
 
     // Get all brands id-s
@@ -216,7 +256,7 @@ class Model_user extends CI_Model {
     }
 
     // Add new winners
-    public function add_new_winners($users, $post_id, $brand, $test = FALSE) {
+    public function add_new_winners($users, $post_id, $brand, $test = FALSE, $user_data = array()) {
         foreach ($users as $inst_id) {
         	
 			// Get email data
@@ -231,7 +271,8 @@ class Model_user extends CI_Model {
 					$data = array(
                 		'post_id' => $post_id,
                 		'inst_id' => $inst_id,
-                		'code' => $code
+                		'code' => $code,
+                		'type' => $user_data[$user->inst_id]
             		);
 
             		$this->db->insert(TBL_POST_WINNERS, $data);	
@@ -250,17 +291,15 @@ class Model_user extends CI_Model {
 				}
 
             	// Send activation link to user
-            	$header = "From: no-reply@balkanoutsource.com\r\n";
-            	$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-            	$header .= "MIME-Version: 1.0\r\n";
-            	$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+//            	$header = "From: " . FROM_EMAIL . "\r\n";
+//            	$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
+//            	$header .= "MIME-Version: 1.0\r\n";
+//            	$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
 				$to = $user->email;
-
             	log_message('error', "$to , $subject, message , $header");
-
-            	$mail_success = mail($to, $subject, $message, $header);
-
+//            	$mail_success = mail($to, $subject, $message, $header);
+                $mail_success = send_email($to,$subject,$message);
             	log_message('error', 'mail success=' . print_r($mail_success, 1));
             }
         }
@@ -308,8 +347,8 @@ class Model_user extends CI_Model {
 				'Website: www.brandtap.co<br />' .
 				'Email: info@brandtap.co';
 			$subject = 'Hi {name}';
-			$status = 1;
-			$code_lenght = 20;
+			$status = 0;
+			$code_lenght = 8;
 		} else {
 			$message = $email_data->template;
 			$subject = $email_data->subject;
@@ -321,7 +360,7 @@ class Model_user extends CI_Model {
 			'message' => $message,
 			'subject' => $subject,
 			'status' => $status,
-			'code_lenght' => $code_lenght
+			'code_lenght' => $code_lenght,
 		);
 		
 		// Check if ajax call
@@ -344,14 +383,13 @@ class Model_user extends CI_Model {
 	}
 
 	// Save new template
-	public function save_email_template($message, $post_id, $subject, $status, $code_lenght){
+	public function save_email_template($message, $post_id, $subject, $code_lenght){
 		
 		// Prepare data
 		$data = array(
 			'post_id' => $post_id,
 			'template' => $message,
 			'subject' => $subject,
-			'sending_status' => $status,
 			'code_lenght' => $code_lenght
 		);
 		
@@ -398,6 +436,38 @@ class Model_user extends CI_Model {
 		);
 		$this->db->where('inst_id', $user_id);
 		$this->db->update(TBL_USERS, $update);
+	}
+	
+	// Email sending status change
+	public function email_sending_status_change($post_id, $status){
+		
+		$data = array(
+			'post_id' => $post_id,
+			'sending_status' => $status
+		);
+		
+		if($this->email_template_exists($post_id) === 0){
+			$email_data = $this->get_email_template($post_id);
+			$data['template'] = $email_data['message'];
+			$data['subject'] = $email_data['subject'];
+			$data['code_lenght'] = $email_data['code_lenght'];
+			$this->db->insert(TBL_EMAIL_TEMPLATE, $data);
+		} else {
+			$this->db->where('post_id', $post_id);
+        	$this->db->update(TBL_EMAIL_TEMPLATE, $data);
+		}
+	}
+	
+	// Database update 2015-01-30
+	public function update_2015_01_30($post_id, $user_inst_id, $type){
+		
+		$data = array(
+			'type' => $type
+		);
+		
+		$this->db->where('post_id', $post_id);
+		$this->db->where('inst_id', $user_inst_id);
+		$this->db->update(TBL_POST_WINNERS, $data);
 	}
 
 }

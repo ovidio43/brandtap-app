@@ -24,9 +24,9 @@ class Model_paypal extends CI_Model
 		$this->set_credentials();
 
 		$subscription_details = array(
-			'description' => 'Your Subscription: $4.99/month',
+			'description' => 'Your Subscription: $'.PREMIUM_PRICE.'/month',
 			'start_date' => date( 'Y-m-d\TH:i:s', time() + ( 24 * 60 * 60) ),
-			'amount' => '4.99',
+			'amount' => PREMIUM_PRICE,
 			'period' => 'Month',
 			'frequency' => '1',
 		);
