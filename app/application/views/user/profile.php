@@ -1,13 +1,17 @@
 
 <script type="text/javascript">
 	jQuery(document).ready(function () {
+		
+		var count = 0;
+		
 		jQuery('#edit-email').on('show.bs.modal', function(event){
 			var button = $(event.relatedTarget);
 			var post_id = button.data('post-id');
 			CKEDITOR.replace( 'email_body', {
 				'extraPlugins' : 'imagebrowser',
 				'imageBrowser_listUrl' : '<?= base_url() ?>img/<?= $this->session->userdata('user_id') ?>/images_list.json',
-    			filebrowserUploadUrl: '<?= site_url('upload/upload_image/1/') ?>'
+    			filebrowserUploadUrl: '<?= site_url('upload/upload_image/1/') ?>',
+    			allowedContent: true
 			});
 			var modal = $(this);
 			jQuery.ajax({
@@ -16,7 +20,18 @@
 				data: { 'post_id' : post_id },
 				dataType: 'json',
 				success: function(res) {
-					CKEDITOR.instances.email_body.setData(res['message']);
+					//CKEDITOR.instances.email_body.setData(res['message']);
+					if(res['template_custom'] == 0){
+						CKEDITOR.instances.email_body.setData('<h1 style="color: rgb(170, 170, 170); font-style: italic;">Customize Your Email Body</h1>');
+						CKEDITOR.instances.email_body.on('focus', function(){
+							if(count == 0){
+								CKEDITOR.instances.email_body.setData('');
+								count = 1;	
+							}
+						})	
+					} else {
+						CKEDITOR.instances.email_body.setData(res['message']);
+					}
 					jQuery('#post_id').val(post_id);
 					jQuery('#subject').val(res['subject']);
 					jQuery('#coupon_code').val(res['code_lenght']);
@@ -27,6 +42,7 @@
 		jQuery('#edit-email').on('hide.bs.modal', function(event){
 			var instance = CKEDITOR.instances['email_body'];
 			instance.destroy();
+			count = 0;
 		})
 		
 		jQuery('#save_email').on('click', function(event){

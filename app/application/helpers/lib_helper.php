@@ -90,6 +90,8 @@ function send_email($to,$subject,$message)
     $header .= "MIME-Version: 1.0\r\n";
     $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
+	log_message('error', "$to , $subject, message , $header");
+	
     $mail_success = mail($to, $subject, $message, $header);
 
     return $mail_success;

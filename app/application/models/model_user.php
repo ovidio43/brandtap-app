@@ -297,7 +297,7 @@ class Model_user extends CI_Model {
 //            	$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
 				$to = $user->email;
-            	log_message('error', "$to , $subject, message , $header");
+            	//log_message('error', "$to , $subject, message , $header");
 //            	$mail_success = mail($to, $subject, $message, $header);
                 $mail_success = send_email($to,$subject,$message);
             	log_message('error', 'mail success=' . print_r($mail_success, 1));
@@ -349,11 +349,13 @@ class Model_user extends CI_Model {
 			$subject = 'Hi {name}';
 			$status = 0;
 			$code_lenght = 8;
+			$template_custom = 0;
 		} else {
 			$message = $email_data->template;
 			$subject = $email_data->subject;
 			$status = $email_data->sending_status;
 			$code_lenght = $email_data->code_lenght;
+			$template_custom = 1;
 		}
 		
 		$data = array(
@@ -361,6 +363,7 @@ class Model_user extends CI_Model {
 			'subject' => $subject,
 			'status' => $status,
 			'code_lenght' => $code_lenght,
+			'template_custom' => $template_custom
 		);
 		
 		// Check if ajax call
