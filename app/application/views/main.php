@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="position: relative; min-height: 100%;">
     <head>
         <title><?= $document_title ?></title>
         <script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -15,7 +15,7 @@
         <!----------Ckeditor-------------->
         <script type="text/javascript" src="<?= base_url() ?>third_party/ckeditor/ckeditor.js"></script>
     </head>
-    <body>
+    <body style="margin: 0 0 60px;">
         <div class="container">
             <div class="header">
                 <div class="row">
@@ -56,7 +56,7 @@
                 <?= $content ?>
             </div>
        	</div>
-    <footer class="footer text-center" style="position: fixed; bottom: 0px; background: inherit; width: 100%">			         
+    <footer class="footer text-center" style="position: absolute; bottom: 0px; background: inherit; width: 100%">			         
     	<div style="padding: 15px 0;">
         	<p>Brand Tap 2015</p>
        	</div>  

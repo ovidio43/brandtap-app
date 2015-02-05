@@ -261,47 +261,47 @@ class Model_user extends CI_Model {
         	
 			// Get email data
             $email_data = $this->get_email_template($post_id);
-			if($email_data['status'] == 1 || $test){
 
-				$user = $this->get_user($inst_id);
+			$user = $this->get_user($inst_id);
 				
-				if(!$test){
-					$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $email_data['code_lenght']);
+			if(!$test){
+				$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $email_data['code_lenght']);
 					
-					$data = array(
-                		'post_id' => $post_id,
-                		'inst_id' => $inst_id,
-                		'code' => $code,
-                		'type' => $user_data[$user->inst_id]
-            		);
+				$data = array(
+                	'post_id' => $post_id,
+                	'inst_id' => $inst_id,
+                	'code' => $code,
+                	'type' => $user_data[$user->inst_id]
+            	);
 
-            		$this->db->insert(TBL_POST_WINNERS, $data);	
+            	$this->db->insert(TBL_POST_WINNERS, $data);	
 					
-					// Subject
-					$subject = str_replace('{name}', $user->username, $email_data['subject']);
-					$subject = str_replace('{brand}', $brand, $subject);
+				// Subject
+				$subject = str_replace('{name}', $user->username, $email_data['subject']);
+				$subject = str_replace('{brand}', $brand, $subject);
 			
-					// Message
-					$message = str_replace('{name}', $user->username, $email_data['message']);
-					$message = str_replace('{coupon_code}', $code, $message);
-					$message = str_replace('{brand}', $brand, $message);
-				} else {
-					$message = $email_data['message'];
-					$subject = $email_data['subject'];
-				}
+				// Message
+				$message = str_replace('{name}', $user->username, $email_data['message']);
+				$message = str_replace('{coupon_code}', $code, $message);
+				$message = str_replace('{brand}', $brand, $message);
+			} else {
+				$message = $email_data['message'];
+				$subject = $email_data['subject'];
+			}
 
-            	// Send activation link to user
-//            	$header = "From: " . FROM_EMAIL . "\r\n";
-//            	$header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-//            	$header .= "MIME-Version: 1.0\r\n";
-//            	$header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+            // Send activation link to user
+//          $header = "From: " . FROM_EMAIL . "\r\n";
+//          $header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
+//          $header .= "MIME-Version: 1.0\r\n";
+//          $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-				$to = $user->email;
-            	//log_message('error', "$to , $subject, message , $header");
-//            	$mail_success = mail($to, $subject, $message, $header);
-                $mail_success = send_email($to,$subject,$message);
-            	log_message('error', 'mail success=' . print_r($mail_success, 1));
-            }
+			$to = $user->email;
+            //log_message('error', "$to , $subject, message , $header");
+//          $mail_success = mail($to, $subject, $message, $header);
+			if($email_data['status'] == 1 || $test){
+				$mail_success = send_email($to,$subject,$message);
+           		log_message('error', 'mail success=' . print_r($mail_success, 1));	
+			}
         }
     }
 
