@@ -192,248 +192,259 @@
     	margin-top: 1px;
     }
 </style>
-<div class="page-header text-left">
-    <h3><small>
-    	List of your posts that use #BrandTap referral program
-    </small></h3>
-</div>
+<? if($brand == 1): ?>
+	<div class="page-header text-left">
+    	<h3><small>
+    		List of your posts that use #BrandTap referral program
+    	</small></h3>
+	</div>
 
-<!--<div class="row j-title">
-    <div class="col-md-12 text-left">
-        <h1 class="pull-left">Dashboard</h1> 
-        <p class="pull-left">(List of your posts that use #BrandTap referral program) </p>
-        <h4 class="pull-right">
-            <a href="http://www.btandtap.co">Back to the BrandTap.co site</a>
-        </h4>
-    </div>
-</div>-->
-<div role="tabpanel">
-    <!--<ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active">
+	<!--<div class="row j-title">
+    	<div class="col-md-12 text-left">
+        	<h1 class="pull-left">Dashboard</h1> 
+        	<p class="pull-left">(List of your posts that use #BrandTap referral program) </p>
+        	<h4 class="pull-right">
+            	<a href="http://www.btandtap.co">Back to the BrandTap.co site</a>
+        	</h4>
+    	</div>
+	</div>-->
+	<div role="tabpanel">
+    	<!--<ul class="nav nav-tabs" role="tablist">
+            	<li role="presentation" class="active">
                     <a href="#promotions" role="tab" data-toggle="tab" aria-controls="promotions" aria-expanded="true">
                             Promotions
                     </a>
-            </li>
-            <li role="presentation">
+            	</li>
+            	<li role="presentation">
                     <a href="#discounts" role="tab" data-toggle="tab" aria-controls="discounts" aria-expanded="false">
                             Discounts
                     </a>
-            </li>
-    </ul>
-    -->
-    <div class="tab-content">
-        <div id="promotions" class="tab-pane active" role="tabpanel">           
-            <? if (count($media)): ?>   
+            	</li>
+    	</ul>
+    	-->
+    	<div class="tab-content">
+        	<div id="promotions" class="tab-pane active" role="tabpanel">           
+            	<? if (count($media)): ?>   
 
-				<div class="table-responsive">
-			        <table class="table table-bordered table-hover text-left">
-			            <thead>
-			                <tr class="active">
-			                    <th class="text-center" style="width: 100px"><?= strtoupper('Post details'); ?> </th>
-			                    <th class="text-center"><?= strtoupper('Username'); ?></th>
-			                    <th class="text-center"><?= strtoupper('Email'); ?></th>
-			                    <th class="text-center" style="width: 11%;"><?= strtoupper('Promo Codes Awarded'); ?> </th>
-			                    <!--<th class="text-center"><?= strtoupper('Hashtags'); ?> </th>-->
-			                    <th class="text-center"><?= strtoupper('Stats'); ?> </th>
-			                    <th class="text-center"><?= strtoupper('Send Email'); ?></th>
-			                </tr>
-			            </thead>
-			            <tbody>
-			                <?php foreach ($media as $row) { ?>
-			                    <tr <?=!$row['sending_status'] ? ' style="background: #F8E0E0" ' : ' style="background: #E6F8E0"'?> 
-			                    	id="tbl-row-<?= $row['id'] ?>">
-			                        <td>
-			                            <div>
-			                                <a href="<?= $row['link'] ?>" class="thumbnail" style="margin-bottom: 5px;">
-			                                    <img class="img-rounded img-responsive" src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
-			                                </a>                            
-			                                <?= $row['date'] ?>
-			                                <p>
-			                                	<?php foreach ($row['hashtags'] as $tag) : ?>
-			                                		#<?= ucfirst($tag) ?><br />
-			                           			 <?php endforeach ?>
-			                                	<a href="<?= $row['link'] ?>">View on Instagram</a>
-			                                </p>
-			                            </div>
-			                        </td>
-	                        		<td>
-	                        			<?php foreach($row['winners'] as $data) : ?>
-	                        				<?= $data['username'] ?>
-	                        			<?php endforeach ?>
-	                        		</td>
-	                        		<td>
-	                        			<?php foreach($row['winners'] as $data) : ?>
-	                        				<?= isset($data['email']) ? $data['email'] : '' ?>
-	                        			<?php endforeach ?>
-	                        		</td>
-	                        		<td>
-	                        			<?php foreach($row['winners'] as $data) : ?>
-	                        				<?= $data['code'] ?>
-	                        			<?php endforeach ?>
-	                        		</td>
-			                        <!--<td>
-			                            <?php foreach ($row['hashtags'] as $tag) : ?>
-			                                <p><?= $tag ?></p>
-			                            <?php endforeach ?>	
-			                        </td>-->
-			                        <td>                       
-			                            <p><span class="badge"><?= $row['likes'] ?></span></p>
-			                            <p><span class="badge"><?= $row['comments'] ?></span></p>
-			                        </td>
-			                        <td class="text-center">
-		                            	<p>
-											<div class="onoffswitch" data-toggle="tooltip" data-placement="top" title="Send out Email for this Post">
-												<input type="checkbox" name="email_status" class="onoffswitch-checkbox" id="<?= $row['id'] ?>"
-													<?= !$row['sending_status'] ? '' : 'checked' ?> />
-		 										<label class="onoffswitch-label" for="<?= $row['id'] ?>">
-													<span class="onoffswitch-inner"></span>
-													<span class="onoffswitch-switch">
-														<div class="inner-lines">
-															|||
-														</div>
-													</span>
-												</label>
-											</div>
-		                            	</p>
-		                            	<button type="button"
+					<div class="table-responsive">
+			        	<table class="table table-bordered table-hover text-left">
+			            	<thead>
+			                	<tr class="active">
+			                    	<th class="text-center" style="width: 100px"><?= strtoupper('Post details'); ?> </th>
+			                    	<th class="text-center"><?= strtoupper('Username'); ?></th>
+			                    	<th class="text-center"><?= strtoupper('Email'); ?></th>
+			                    	<th class="text-center" style="width: 11%;"><?= strtoupper('Promo Codes Awarded'); ?> </th>
+			                    	<!--<th class="text-center"><?= strtoupper('Hashtags'); ?> </th>-->
+			                    	<th class="text-center"><?= strtoupper('Stats'); ?> </th>
+			                    	<th class="text-center"><?= strtoupper('Send Email'); ?></th>
+			                	</tr>
+			            	</thead>
+			            	<tbody>
+			                	<?php foreach ($media as $row) { ?>
+			                    	<tr <?=!$row['sending_status'] ? ' style="background: #F8E0E0" ' : ' style="background: #E6F8E0"'?> 
+			                    		id="tbl-row-<?= $row['id'] ?>">
+			                        	<td>
+			                            	<div>
+			                                	<a href="<?= $row['link'] ?>" class="thumbnail" style="margin-bottom: 5px;">
+			                                    	<img class="img-rounded img-responsive" src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
+			                                	</a>                            
+			                                	<?= $row['date'] ?>
+			                                	<p>
+			                                		<?php foreach ($row['hashtags'] as $tag) : ?>
+			                                			#<?= ucfirst($tag) ?><br />
+			                           			 	<?php endforeach ?>
+			                                		<a href="<?= $row['link'] ?>">View on Instagram</a>
+			                                	</p>
+			                            	</div>
+			                        	</td>
+	                        			<td>
+	                        				<?php foreach($row['winners'] as $data) : ?>
+	                        					<?= $data['username'] ?>
+	                        				<?php endforeach ?>
+	                        			</td>
+	                        			<td>
+	                        				<?php foreach($row['winners'] as $data) : ?>
+	                        					<?= isset($data['email']) ? $data['email'] : '' ?>
+	                        				<?php endforeach ?>
+	                        			</td>
+	                        			<td>
+	                        				<?php foreach($row['winners'] as $data) : ?>
+	                        					<?= $data['code'] ?>
+	                        				<?php endforeach ?>
+	                        			</td>
+			                        	<!--<td>
+			                            	<?php foreach ($row['hashtags'] as $tag) : ?>
+			                                	<p><?= $tag ?></p>
+			                            	<?php endforeach ?>	
+			                        	</td>-->
+			                        	<td>                       
+			                            	<p><span class="badge"><?= $row['likes'] ?></span></p>
+			                            	<p><span class="badge"><?= $row['comments'] ?></span></p>
+			                        	</td>
+			                        	<td class="text-center">
+		                            		<p>
+												<div class="onoffswitch" data-toggle="tooltip" data-placement="top" title="Send out Email for this Post">
+													<input type="checkbox" name="email_status" class="onoffswitch-checkbox" id="<?= $row['id'] ?>"
+														<?= !$row['sending_status'] ? '' : 'checked' ?> />
+		 											<label class="onoffswitch-label" for="<?= $row['id'] ?>">
+														<span class="onoffswitch-inner"></span>
+														<span class="onoffswitch-switch">
+															<div class="inner-lines">
+																|||
+															</div>
+														</span>
+													</label>
+												</div>
+		                            		</p>
+		                            		<button type="button"
 			                        			class="btn btn-default"
 			                        			data-toggle="modal" 
 			                        			data-target="#edit-email"
 			                        			data-post-id="<?= $row['id'] ?>"
 			                        			id="email_button_<?= $row['id'] ?>">
-		                            		Create Custom Email
-		                            	</button>
-			                        </td>
-			                    </tr>
-			                <?php } ?>
-			            </tbody>
-			        </table>
-			    </div>
-            <? else: ?>
-                <div class="row">
-                    <div class="col-md-4 text-left">
-                        <p style="margin:10px 0; font-weight: bold;">You have no promotions yet!</p>
-                    </div>
-                </div>
-            <? endif ?>
-        </div>
-    	<div id="discounts" class="tab-pane" role="tabpanel">
-        	<div class="row">
-            	<div class="col-md-4 text-left">
-                	<h2>Post details</h2>
-            	</div>
-            	<div class="col-md-3 text-left">
-                	<h2>Coupons Awarded</h2>
-           		</div>
-            	<div class="col-md-3 text-left">
-                	<h2>Hashtags</h2>
-            	</div>
-            	<?php foreach ($media_user as $row) : ?>
+		                            			Create Custom Email
+		                            		</button>
+			                        	</td>
+			                    	</tr>
+			                	<?php } ?>
+			            	</tbody>
+			        	</table>
+			    	</div>
+            	<? else: ?>
                 	<div class="row">
                     	<div class="col-md-4 text-left">
-                        	<div class="col-md-4">
-                            	<img src="<?= $row['image'] ?>" />
-                            	<p><?= $row['date'] ?></p>
-                        	</div>
-                        	<div class="col-md-4">
-                            	<p><?= $row['caption'] ?></p>
-                            	<p><a href="<?= $row['link'] ?>">View on Instagram</a></p>
-                        	</div>
-                    	</div>
-                    	<div class="col-md-3 text-left">
-                        	<p><?= $row['winners'] ?></p>
-                    	</div>
-                    	<div class="col-md-3 text-left">
-                        	<?php foreach ($row['hashtags'] as $tag) : ?>
-                            	<p><?= $tag ?></p>
-                        	<?php endforeach ?>
+                        	<p style="margin:10px 0; font-weight: bold;">You have no promotions yet!</p>
                     	</div>
                 	</div>
-                	<hr />
-            	<?php endforeach ?>
+            	<? endif ?>
         	</div>
-    	</div>
-   </div>
-</div>
-
-<div id="edit-email" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="label" aria-hidden="true" data-focus-on="input:first">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">
-						&times;
-					</span>
-				</button>
-				<h3 class="modal-title" id="label">
-					Create Custom Email to your Users
-				</h3>
-			</div>
-			<div class="modal-body">
-				<div>
-					<h4 style="float: left">Email Subject Line*</h4>
-					<input type="text" id="subject" style="float: left; margin-left: 10px"/>
+    		<div id="discounts" class="tab-pane" role="tabpanel">
+        		<div class="row">
+            		<div class="col-md-4 text-left">
+                		<h2>Post details</h2>
+            		</div>
+            		<div class="col-md-3 text-left">
+                		<h2>Coupons Awarded</h2>
+           			</div>
+            		<div class="col-md-3 text-left">
+                		<h2>Hashtags</h2>
+            		</div>
+            		<? if(count($media_user)): ?>
+            			<?php foreach ($media_user as $row) : ?>
+                			<div class="row">
+                    			<div class="col-md-4 text-left">
+                        			<div class="col-md-4">
+                            			<img src="<?= $row['image'] ?>" />
+                            			<p><?= $row['date'] ?></p>
+                        			</div>
+                        			<div class="col-md-4">
+                            			<p><?= $row['caption'] ?></p>
+                            			<p><a href="<?= $row['link'] ?>">View on Instagram</a></p>
+                        			</div>
+                    			</div>
+                    			<div class="col-md-3 text-left">
+                        			<p><?= $row['winners'] ?></p>
+                    			</div>
+                    			<div class="col-md-3 text-left">
+                        			<?php foreach ($row['hashtags'] as $tag) : ?>
+                            			<p><?= $tag ?></p>
+                        			<?php endforeach ?>
+                    			</div>
+                			</div>
+                			<hr />
+            			<?php endforeach ?>
+            		<? endif ?>
+        		</div>
+    		</div>
+   		</div>
+	</div>
+	
+	<div id="edit-email" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="label" aria-hidden="true" data-focus-on="input:first">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">
+							&times;
+						</span>
+					</button>
+					<h3 class="modal-title" id="label">
+						Create Custom Email to your Users
+					</h3>
 				</div>
-				<div style="clear: both"></div>
-				<div class="text-left">
-					<br />{name} - name of user who liked post<br />
-					{brand} - brand which posted image/post
-				</div>
-				<hr />
-				<br />
-				<div class="text-left">
-					<h4>Create Custom Coupon Code</h4>
+				<div class="modal-body">
+					<div>
+						<h4 style="float: left">Email Subject Line*</h4>
+						<input type="text" id="subject" style="float: left; margin-left: 10px"/>
+					</div>
+					<div style="clear: both"></div>
+					<div class="text-left">
+						<br />{name} - name of user who liked post<br />
+						{brand} - brand which posted image/post
+					</div>
+					<hr />
 					<br />
-					<p>
-						Coupon Code Length/Specifications
-						<input type="text" name="coupon_code" id="coupon_code" />
-					</p>
-				</div>
-				<hr />
-				<br />
-				<div>
-					<h4>Message to Send to your Followers*</h4>
+					<div class="text-left">
+						<h4>Create Custom Coupon Code</h4>
+						<br />
+						<p>
+							Coupon Code Length/Specifications
+							<input type="text" name="coupon_code" id="coupon_code" />
+						</p>
+					</div>
+					<hr />
 					<br />
-					<p class="text-left">Send the Latest Buzz, Prepare a Newsletter, Email Product information, etc. 
-						You can add images, pictures, links, designs, coupon codes, and checkout buttons here!</p>
-					<textarea id="email_body" name="email_body" rows="5" cols="90"></textarea>
+					<div>
+						<h4>Message to Send to your Followers*</h4>
+						<br />
+						<p class="text-left">Send the Latest Buzz, Prepare a Newsletter, Email Product information, etc. 
+							You can add images, pictures, links, designs, coupon codes, and checkout buttons here!</p>
+						<textarea id="email_body" name="email_body" rows="5" cols="90"></textarea>
+					</div>
+					<div class="text-left">
+						<br />{name} - name of user who liked post<br />
+						{coupon_code} - code which will be used when buying brand's product/service<br />
+						{brand} - brand which posted image/post<br />
+					</div>
+					<input type="hidden" value="" id="post_id"/>
 				</div>
-				<div class="text-left">
-					<br />{name} - name of user who liked post<br />
-					{coupon_code} - code which will be used when buying brand's product/service<br />
-					{brand} - brand which posted image/post<br />
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" style="float: left">Close</button>
+					<button type="button" class="btn btn-default" data-toggle="modal" href="#test">Test - Send Email to My Email Address on File</button>
+       				<button type="button" class="btn btn-primary" id="save_email">Save Changes</button>
 				</div>
-				<input type="hidden" value="" id="post_id"/>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal" style="float: left">Close</button>
-				<button type="button" class="btn btn-default" data-toggle="modal" href="#test">Test - Send Email to My Email Address on File</button>
-       			<button type="button" class="btn btn-primary" id="save_email">Save Changes</button>
-			</div>
 			</div>
 		</div>
 	</div>
-</div>
-<div id="test" class="modal fade" tabindex="-1" data-focus-on="input:first">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">
-						&times;
-					</span>
-				</button>
-				<h3 class="modal-title" id="label">
-					Test email confirm
-				</h3>
-			</div>
-			<div class="modal-body">
-				<p>Test email will be sent only to your email</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal" style="float: left">Close</button>
-				<button type="button" class="btn btn-primary" id="send_test">Send</button>
+	<!--</div>-->
+	<div id="test" class="modal fade" tabindex="-1" data-focus-on="input:first">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">
+							&times;
+						</span>
+					</button>
+					<h3 class="modal-title" id="label">
+						Test email confirm
+					</h3>
+				</div>
+				<div class="modal-body">
+					<p>Test email will be sent only to your email</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" style="float: left">Close</button>
+					<button type="button" class="btn btn-primary" id="send_test">Send</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+<? else: ?>
+	<div class="page-header text-left">
+    	<h3><small>
+    		Welcome <?= $username ?>. You are successfully registered on BrandTap application and you are able to receive emails and 
+    		promotions from brands using this application.
+    	</small></h3>
+	</div>
+<? endif ?>
