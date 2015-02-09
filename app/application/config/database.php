@@ -49,9 +49,9 @@ $active_group = 'default';
 $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'mommyhot_appus';
-$db['default']['password'] = 'eK9S~b&);B?i';   
-$db['default']['database'] = 'mommyhot_app';
+$db['default']['username'] = 'brandtap_app';
+$db['default']['password'] = 'q5!2ixHLP';   
+$db['default']['database'] = 'brandtap_app';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = FALSE;

@@ -82,3 +82,17 @@ function set_active($page)
 
     return $is_active ? ' menu-active ' : "";
 }
+
+function send_email($to,$subject,$message)
+{
+    $header  = "From: " . FROM_EMAIL . "\r\n";
+    $header .= "BCC: " . BCC_EMAIL . "\r\n";
+    $header .= "MIME-Version: 1.0\r\n";
+    $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+	log_message('error', "$to , $subject, message , $header");
+	
+    $mail_success = mail($to, $subject, $message, $header);
+
+    return $mail_success;
+}

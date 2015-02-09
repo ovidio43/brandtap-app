@@ -16,7 +16,7 @@ class Cron extends MY_Controller
 	public function index()
 	{
 		ob_start();
-		//$data = array();
+		$data = array();
 		
 		// Get all post with brandtap tag
 		$posts = $this->model_instagram->_recent_media_by_tag("brandtap");
@@ -42,6 +42,7 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 					
 					foreach($comments->data as $comments_data){
 						$comment_users[] = $comments_data->from->id;
+						$data[$comments_data->from->id] = 'C';
 					}
 				}
 				if($post->likes->count > 0){
@@ -49,6 +50,7 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 					
 					foreach($like->data as $like_data){
 						$like_users[] = $like_data->id;
+						$data[$like_data->id] = 'L';
 					}
 				}
 				
@@ -72,7 +74,7 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 					$new_users = array_diff($new_users_brand, array($post->user->id));
 				
 					// Send email and add them to database 
-					$this->model_user->add_new_winners($new_users, $post->id, $post->user->full_name);
+					$this->model_user->add_new_winners($new_users, $post->id, $post->user->full_name, FALSE, $data);
 
 					$cnt += count($new_users);	
 				}
@@ -86,6 +88,36 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 
 
 
+	}
+
+	// Database update function for 2015-01-30
+	public function update_2015_01_30(){
+		ob_start();
+		
+		$posts = $this->model_instagram->_recent_media_by_tag("brandtap");
+		foreach($posts->data as $post){
+			$winners = $this->model_user->get_post_winners($post->id);
+			if($post->likes->count > 0){
+				$like = $this->model_instagram->_media_likes_list($post->id);
+				
+				foreach($like->data as $like_data){
+					if(in_array($comments_data->from->id, $winners)){
+						$this->model_user->update_2015_01_30($post->id,$like_data->id, 'L');	
+					}
+				}
+			}
+			if($post->comments->count > 0){
+				$comments = $this->model_instagram->_media_comments_list($post->id);
+				
+				foreach($comments->data as $comments_data){
+					if(in_array($comments_data->from->id, $winners)){
+						$this->model_user->update_2015_01_30($post->id,$comments_data->from->id, 'C');
+					}
+				}
+			}
+		}
+		
+		$ob = ob_get_clean();
 	}
 }
 
