@@ -5,8 +5,8 @@ if (!defined('BASEPATH'))
 
 class Model_instagram extends CI_Model {
 
-    private $_clientID = '8369ea9d5dfa49c28dd6e93f20920f09';
-    private $_clientSecret = 'a7e1cf8a344340199e63a91fcec7bdf3';
+    private $_clientID = INSTAGRAM_API_CLIENT;
+    private $_clientSecret = INSTAGRAM_API_SECRET;
     private $_callBackURL = INSTAGRAM_API_REDIRECT_URI;
     private $_scopes = array('basic', 'likes', 'comments', 'relationships');
     private $_actions = array('follow', 'unfollow', 'block', 'unblock', 'approve', 'deny');
@@ -258,17 +258,24 @@ class Model_instagram extends CI_Model {
         $this->db->join(TBL_POST_WINNERS, TBL_POST_WINNERS . '.inst_id = ' . TBL_USERS . '.inst_id');
         $this->db->where(TBL_POST_WINNERS . '.post_id', $post_id);
         $query = $this->db->get();
-
+		
+		$sending_status = $this->email_template_exists($post_id);
         $winners = array();
 		$like = 0;
 		$comments = 0;
 		$i = 0;
 		$j = 0;
         foreach ($query->result() as $row) {
+        	$code = '';
+			if(isset($sending_status->sending_status)){
+				if($sending_status->sending_status == 1){
+					$code = '<span data-toggle="tooltip" data-placement="top" title="' . $row->code . '">' . (substr($row->code, 0, 12)) . 
+        				'...</span><br />';
+				}
+			}
         	$data = array(
         		'username' => '@' . $row->username . '<br />',
-        		'code' => '<span data-toggle="tooltip" data-placement="top" title="' . $row->code . '">' . (substr($row->code, 0, 12)) . 
-        			'...</span><br />'
+        		'code' => $code
 			);
         	$i++;
         	if($this->session->userdata('subscription_status') == 'Inactive' && $i <= EMAIL_PREVIEW_FREE_LIMIT){

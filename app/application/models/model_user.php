@@ -108,7 +108,9 @@ class Model_user extends CI_Model {
 
         if ($this->form_validation->run() !== FALSE){
             $this->add_email($email, $brand);
-            $this->send_welcome_email($email);
+			if($brand === 'on'){
+				$this->send_welcome_email($email);	
+			}
             redirect('user/profile');
         } else {
             redirect('user/register_email?error=Invalid+email+address');
