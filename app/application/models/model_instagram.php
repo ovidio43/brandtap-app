@@ -5,8 +5,8 @@ if (!defined('BASEPATH'))
 
 class Model_instagram extends CI_Model {
 
-    private $_clientID = '73574de5fd9a45f7abd3e561cceab304';
-    private $_clientSecret = '4e50aaedd961486d85c46906d3552c40';
+    private $_clientID = INSTAGRAM_API_CLIENT;
+    private $_clientSecret = INSTAGRAM_API_SECRET;
     private $_callBackURL = INSTAGRAM_API_REDIRECT_URI;
     private $_scopes = array('basic', 'likes', 'comments', 'relationships');
     private $_actions = array('follow', 'unfollow', 'block', 'unblock', 'approve', 'deny');

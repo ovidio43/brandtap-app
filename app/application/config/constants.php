@@ -22,6 +22,15 @@ define('INSTAGRAM_API_OAUTH_URL', 'https://api.instagram.com/oauth/authorize');
 define('INSTAGRAM_API_OAUTH_TOKEN_URL', 'https://api.instagram.com/oauth/access_token');
 define('INSTAGRAM_API_REDIRECT_URI', 'http://dev.balkanoutsource.com/projects/brandtap');
 
+//Balkan Outsource's API:
+//define('INSTAGRAM_API_CLIENT', '73574de5fd9a45f7abd3e561cceab304');
+//define('INSTAGRAM_API_SECRET', '4e50aaedd961486d85c46906d3552c40');
+
+// BrandTap.it API:
+define('INSTAGRAM_API_CLIENT', '8369ea9d5dfa49c28dd6e93f20920f09');
+define('INSTAGRAM_API_SECRET', 'a7e1cf8a344340199e63a91fcec7bdf3');
+
+
 /*
 /--------------------------------------------------------------------------
 / PayPal
