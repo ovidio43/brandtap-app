@@ -20,7 +20,7 @@ define("TBL_OPTIONS", "options");
 define('INSTAGRAM_API_URL', 'https://api.instagram.com/v1/');
 define('INSTAGRAM_API_OAUTH_URL', 'https://api.instagram.com/oauth/authorize');
 define('INSTAGRAM_API_OAUTH_TOKEN_URL', 'https://api.instagram.com/oauth/access_token');
-define('INSTAGRAM_API_REDIRECT_URI', 'http://dev.balkanoutsource.com/projects/brandtap');
+define('INSTAGRAM_API_REDIRECT_URI', 'http://brandtap.it/app');
 
 //Balkan Outsource's API:
 //define('INSTAGRAM_API_CLIENT', '73574de5fd9a45f7abd3e561cceab304');
@@ -37,9 +37,9 @@ define('INSTAGRAM_API_SECRET', 'a7e1cf8a344340199e63a91fcec7bdf3');
 /--------------------------------------------------------------------------
 */
 
-define("PP_USERNAME", "maksa012-facilitator_api1.sbb.rs");
-define("PP_PASSWORD", "EE9P23KQ3FM8KK28");
-define("PP_SIGNATURE", "AiPC9BjkCyDFQXbSkoZcgqH3hpacAUZjPXbLDszjeNwAAsI2BMpAhIXB");
+define("PP_USERNAME", "sales_api1.momsmagazine.com");
+define("PP_PASSWORD", "5Z94P86APVZ26QMT");
+define("PP_SIGNATURE", "AabfxaKMjDpyDfD3wKxn4oGXnGG6Ah.vs0dt9lX.-zGB-o7L.yujTTYC");
 
 //----
 
@@ -48,8 +48,8 @@ define("EMAIL_PREVIEW_FREE_LIMIT", 10);
 
 define("PREMIUM_PRICE", 9.99);
 
-//define("FROM_EMAIL", 'brandtap@brandtap.it');
-define("FROM_EMAIL", 'no-reply@balkanoutsource.com');
+//define("FROM_EMAIL", 'no-reply@balkanoutsource.com');
+define("FROM_EMAIL", 'brandtap@brandtap.it');
 
 define("BCC_EMAIL", 'mrvica83mm@yahoo.com,triva89@yahoo.com,trivudin@gmail.com');
 define('WELCOME_EMAIL_SUBJECT', "Welcome to BrandTap");
