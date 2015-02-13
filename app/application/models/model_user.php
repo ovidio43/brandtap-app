@@ -268,16 +268,7 @@ class Model_user extends CI_Model {
 				
 			if(!$test){
 				$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $email_data['code_lenght']);
-					
-				$data = array(
-                	'post_id' => $post_id,
-                	'inst_id' => $inst_id,
-                	'code' => $code,
-                	'type' => $user_data[$user->inst_id]
-            	);
-
-            	$this->db->insert(TBL_POST_WINNERS, $data);	
-					
+				
 				// Subject
 				$subject = str_replace('{name}', $user->username, $email_data['subject']);
 				$subject = str_replace('{brand}', $brand, $subject);
@@ -303,6 +294,18 @@ class Model_user extends CI_Model {
 			if($email_data['status'] == 1 || $test){
 				$mail_success = send_email($to,$subject,$message);
            		log_message('error', 'mail success=' . print_r($mail_success, 1));	
+			}
+			
+			if(!$test){
+				$data = array(
+                	'post_id' => $post_id,
+                	'inst_id' => $inst_id,
+                	'code' => $code,
+                	'type' => $user_data[$user->inst_id],
+                	'sent_status' => $email_data['status'] == 1 ? 1 : 0
+            	);
+
+            	$this->db->insert(TBL_POST_WINNERS, $data);	
 			}
         }
     }
@@ -339,24 +342,30 @@ class Model_user extends CI_Model {
 		
 		$email_data = $this->email_template_exists($post_id);
 		
-		// If message = 0 get default template
-		if($email_data === 0){
-			$message = 'Thanks for liking or commenting on this post. Your discount code is:<br /><br />' .
+		$message_custom = '<p>Thanks for liking or commenting on this post. Your discount code is:<br /><br />' .
 				'{coupon_code}<br /><br />' .
 				'To use it, you need to show it when paying {brand} product/service.<br /><br />' .
 				'Enoy and tell your friends!<br /><br />' .
 				'BrandTap team<br />' .
 				'Website: www.brandtap.co<br />' .
-				'Email: info@brandtap.co';
+				'Email: info@brandtap.co</p>';
+		
+		// If message = 0 get default template
+		if($email_data === 0){
+			$message = $message_custom;
 			$subject = 'Hi {name}';
 			$status = 0;
 			$code_lenght = 8;
-			$template_custom = 0;
 		} else {
 			$message = $email_data->template;
 			$subject = $email_data->subject;
 			$status = $email_data->sending_status;
 			$code_lenght = $email_data->code_lenght;
+		}
+		
+		if(strcmp($message, $message_custom) == 0){
+			$template_custom = 0;
+		} else {
 			$template_custom = 1;
 		}
 		
@@ -473,6 +482,46 @@ class Model_user extends CI_Model {
 		$this->db->where('post_id', $post_id);
 		$this->db->where('inst_id', $user_inst_id);
 		$this->db->update(TBL_POST_WINNERS, $data);
+	}
+	
+	// Send emails to users that are in database but didn't get email
+	public function send_emails_that_are_not_sent($post_id, $brand){
+		
+		$email_data = $this->get_email_template($post_id);
+		
+		if($email_data['status'] == 1){
+			$this->db->select(TBL_POST_WINNERS . '.*,' . TBL_USERS . '.email,' . TBL_USERS . '.username');
+			$this->db->from(TBL_POST_WINNERS . ',' . TBL_USERS);
+			$this->db->where(TBL_POST_WINNERS . '.post_id', $post_id);
+			$this->db->where(TBL_POST_WINNERS . '.sent_status', 0);
+			$this->db->where(TBL_USERS . '.inst_id = ' . TBL_POST_WINNERS . '.inst_id');
+		
+			$query = $this->db->get();
+		
+			foreach($query->result() as $row){
+				$data = array(
+					'sent_status' => 1
+				);
+			
+				$this->db->where('post_id', $post_id);
+				$this->db->where('inst_id', $row->inst_id);
+				$this->db->update(TBL_POST_WINNERS, $data);
+			
+				// Subject
+				$subject = str_replace('{name}', $row->username, $email_data['subject']);
+				$subject = str_replace('{brand}', $brand, $subject);
+			
+				// Message
+				$message = str_replace('{name}', $row->username, $email_data['message']);
+				$message = str_replace('{coupon_code}', $row->code, $message);
+				$message = str_replace('{brand}', $brand, $message);
+			
+				$to = $row->email;
+			
+				$mail_success = send_email($to,$subject,$message);
+           		log_message('error', 'mail success=' . print_r($mail_success, 1));
+			}
+		}
 	}
 
 }

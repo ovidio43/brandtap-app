@@ -40,7 +40,7 @@ class User extends MY_Controller {
 		
 		if($user->brand == 1){
 			 // Get recent media where user is brand
-        	$media_brand = $this->model_instagram->get_user_recent_media(10, TRUE, $user->username);
+        	$media_brand = $this->model_instagram->get_user_recent_media(90, TRUE, $user->username);
 			$media_user = array();
 		} else {
 			// Get recent media where user get discount

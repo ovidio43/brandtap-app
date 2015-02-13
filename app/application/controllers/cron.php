@@ -17,15 +17,17 @@ class Cron extends MY_Controller
 	{
 		ob_start();
 		$data = array();
+		$pagination = TRUE;
+		$post_number = 0;
 		
 		// Get all post with brandtap tag
-		$posts = $this->model_instagram->_recent_media_by_tag("brandtap");
-$this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->data) );		
+		$posts = $this->model_instagram->_recent_media_by_tag("brandtap", 90);		
 		// Get all brands
 		//$brands = $this->model_user->get_all_brands();
 		
 		$cnt = 0;
-		foreach($posts->data as $post){
+		while($pagination){
+			foreach($posts->data as $post){
 
 
 // for debug only! Do not leave this active!
@@ -54,6 +56,8 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 					}
 				}
 				
+				$post_number += count($posts);
+				
 				// Merge users
 				$all_users = array_merge($comment_users, $like_users);
 				
@@ -78,8 +82,16 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 
 					$cnt += count($new_users);	
 				}
+				
+				$this->model_user->send_emails_that_are_not_sent($post->id, $post->user->full_name);
 			//}
+			}
+			$posts = $this->model_instagram->pagination($posts, 90);
+			if(!(is_object($posts) === TRUE)){
+				$pagination = FALSE;
+			}
 		}
+		$this->model_logs->log('cron', "Posts with #brandTap found:" . $post_number );
 		$this->model_logs->log('cron', "new winners: $cnt" );	
 
 		$ob = ob_get_contents();
@@ -119,6 +131,7 @@ $this->model_logs->log('cron', "Posts with #brandTap found:" . count($posts->dat
 		
 		$ob = ob_get_clean();
 	}
+	
 }
 
 ?>

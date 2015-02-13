@@ -132,13 +132,35 @@ class Model_instagram extends CI_Model {
         return json_decode($result);
     }
 
+	// Pagination
+	public function pagination($obj, $limit){
+		if (true === is_object($obj) && !is_null($obj->pagination)) {
+      		if (!isset($obj->pagination->next_url)) {
+        		return FALSE;
+      		}
+      		$apiCall = explode('?', $obj->pagination->next_url);
+      		if (count($apiCall) < 2) {
+        		return FALSE;
+      		}
+      		$function = str_replace(INSTAGRAM_API_URL, '', $apiCall[0]);
+      		$auth = (strpos($apiCall[1], 'access_token') !== false);
+      		if (isset($obj->pagination->next_max_id)) {
+        		return $this->_API_call($function, $auth, array('max_id' => $obj->pagination->next_max_id, 'count' => $limit));
+      		} else {
+        		return $this->_API_call($function, $auth, array('cursor' => $obj->pagination->next_cursor, 'count' => $limit));
+      		}
+    	} else {
+    		return FALSE;
+    	}
+	}
+
     // Get recent media by tag 
-    public function _recent_media_by_tag($name, $limit = 0) {
-        return $this->_API_call('tags/' . $name . '/media/recent', FALSE);
+    public function _recent_media_by_tag($name, $limit = 90) {
+        return $this->_API_call('tags/' . $name . '/media/recent', TRUE, array('count' => $limit));
     }
 
     // Get user recent media
-    private function _user_recent_media($id = 'self', $limit = 0) {
+    private function _user_recent_media($id = 'self', $limit = 90) {
         return $this->_API_call('users/' . $id . '/media/recent', ($id === 'self'), array('count' => $limit));
     }
 	
