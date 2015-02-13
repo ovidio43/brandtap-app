@@ -1,0 +1,1 @@
+ALTER TABLE `post_winners` ADD `sent_status` VARCHAR(1) NOT NULL DEFAULT 0 AFTER `type`;
