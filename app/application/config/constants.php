@@ -50,8 +50,13 @@ define("EMAIL_PREVIEW_FREE_LIMIT", 10);
 
 define("PREMIUM_PRICE", 9.99);
 
+<<<<<<< HEAD
 //define("FROM_EMAIL", 'brandtap@brandtap.it');
 define("FROM_EMAIL", 'no-reply@balkanoutsource.com');
+=======
+//define("FROM_EMAIL", 'no-reply@balkanoutsource.com');
+define("FROM_EMAIL", 'BrandTap@brandtap.it');
+>>>>>>> 23814b1f96f3debcf1275f94ca47e59d01ab97ba
 
 define("BCC_EMAIL", 'mrvica83mm@yahoo.com,triva89@yahoo.com,trivudin@gmail.com');
 define('WELCOME_EMAIL_SUBJECT', "Welcome to BrandTap");
