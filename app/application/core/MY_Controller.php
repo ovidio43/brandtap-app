@@ -6,6 +6,7 @@ class MY_Controller extends CI_Controller
 	
 	public $title = "";
 	public $document_title = "BrandTap";
+	public $brand_id = 0;
 
 	public function __construct()
 	{
@@ -32,7 +33,8 @@ class MY_Controller extends CI_Controller
 	    $this->load->view('main', array('content'        => $this->content,
 									    'title'          => $this->title,
 									    'document_title' => $this->document_title,
-									    'loged_name'     => $loged_name));
+									    'loged_name'     => $loged_name,
+										'brand_id'       => $this->brand_id));
 	}
 	
 	public function view($file, $data = array())

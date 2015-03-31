@@ -21,7 +21,7 @@ class Model_instagram extends CI_Model {
             return INSTAGRAM_API_OAUTH_URL . '?client_id=' . $this->_clientID . '&redirect_uri=' .
                     urlencode($this->_callBackURL) . '&scope=' . implode('+', $scope) . '&response_type=code';
         } else {
-            // Log error - Parameter is not array or unidentified permissions
+        	log_message('error', "Parameter is not array or unidentified permissions");
         }
     }
 
@@ -37,17 +37,12 @@ class Model_instagram extends CI_Model {
                 redirect('');
             }
 			
-			$acces_token = $this->get_access_token();
-			$insert = array(
-					'name' => 'access_token_instagram',
-					'data' => $user_data->access_token
+			if($this->get_user_access_token($user_data->user->id) != null){
+				$update = array(
+					'access_token' => $user_data->access_token
 				);
 			
-			if($acces_token === null){
-				$this->db->insert(TBL_OPTIONS, $insert);
-			} else {
-				$this->db->where('name', 'access_token_instagram');
-        		$this->db->update(TBL_OPTIONS, $insert);
+				$this->update_user_access_token($user_data->user->id, $update);	
 			}
 
             $this->session->set_userdata('access_token', $user_data->access_token);
@@ -83,7 +78,7 @@ class Model_instagram extends CI_Model {
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            // Log error - CURL error - curl_error($ch)
+        	log_message('error', "CURL error: " . curl_error($ch));
         }
         curl_close($ch);
 
@@ -91,18 +86,18 @@ class Model_instagram extends CI_Model {
     }
 
     // API call function
-    private function _API_call($function, $authenticated = FALSE, $params = null, $method = 'GET') {
+    private function _API_call($function, $authenticated = FALSE, $inst_id = '', $params = null, $method = 'GET') {
         // Check if the call requires authentication
         $authentication_method = '';
         if ($authenticated === FALSE) {
             $authentication_method = '?client_id=' . $this->_clientID;
         } else {
             
-			$access_token = $this->get_access_token();
+			$access_token = $this->get_user_access_token($inst_id);
             if (isset($access_token)) {
-                $authentication_method = '?access_token=' . $access_token->data;
+                $authentication_method = '?access_token=' . $access_token->access_token;
             } else {
-                // Log error - this method requires an authenticated users access token
+            	log_message('error', "This method requires an authenticated users access token");
             }
         }
 
@@ -125,7 +120,7 @@ class Model_instagram extends CI_Model {
 
         $result = curl_exec($ch);
         if (curl_errno($ch)) {
-            // Log error - CURL error - curl_error($ch)
+            log_message('error', "CURL error: " . curl_error($ch));
         }
         curl_close($ch);
 
@@ -156,31 +151,34 @@ class Model_instagram extends CI_Model {
 
     // Get recent media by tag 
     public function _recent_media_by_tag($name, $limit = 90) {
-        return $this->_API_call('tags/' . $name . '/media/recent', TRUE, array('count' => $limit));
+        return $this->_API_call('tags/' . $name . '/media/recent', TRUE, '', array('count' => $limit));
     }
 
     // Get user recent media
-    private function _user_recent_media($id = 'self', $limit = 90) {
-        return $this->_API_call('users/' . $id . '/media/recent', ($id === 'self'), array('count' => $limit));
+    public function _user_recent_media($id = 'self', $limit = 90) {
+        return $this->_API_call('users/' . $id . '/media/recent', ($id === 'self'), $id, array('count' => $limit));
     }
 	
 	// Get likes for media
-	public function _media_likes_list($id){
-		return $this->_API_call('media/' . $id . '/likes', true);
+	public function _media_likes_list($id, $inst_id){
+		return $this->_API_call('media/' . $id . '/likes', true, $inst_id);
 	}
 
 	// Get comments for media
-	public function _media_comments_list($id){
-		return $this->_API_call('media/' . $id . '/comments', false);
+	public function _media_comments_list($id, $inst_id){
+		return $this->_API_call('media/' . $id . '/comments', false, $inst_id);
+	}
+	
+	// Get user from instagram by username
+	public function _get_user_by_usrname($username, $inst_id){
+		return $this->_API_call('users/search', FALSE, $inst_id, array('q' => $username));
 	}
 
     // Get and prepare user recent media
-    public function get_user_recent_media($limit = 0, $brand = FALSE, $user_name) {
+    public function get_user_recent_media($limit = 0, $brand_id = '', $user_name = '') {
         // If user is brand get his posts else get by tag
-        if ($brand) {
-            $data = $this->_user_recent_media($this->session->userdata('user_id'), $limit);
-        } else {
-            $data = $this->_recent_media_by_tag('brandtap');
+        if ($brand_id != '') {
+            $data = $this->_user_recent_media($brand_id, $limit);
         }
 
         $output = array();
@@ -188,87 +186,35 @@ class Model_instagram extends CI_Model {
         if( ! isset($data->data) or ! is_array($data->data)){
             return $output;
         }
+		
+		$pagination = TRUE;
+		
+		while($pagination){
 
-        // Prepare data for page
-        foreach ($data->data as $row) {
-
-            // Check if user is brand
-            if ($brand) {
-
-                foreach ($row->tags as $tag) {
-                    if ($tag === 'brandtap') {
-						
-						$like_comments_winers_data = $this->get_winners($row->id);
-						
-                        $output[] = array(
-                            'image' => $row->images->low_resolution->url,
-                            'date' => date('m-d-Y g:i a', $row->created_time),
-                            'caption' => $row->caption->text,
-                            'link' => $row->link,
-                            'hashtags' => $row->tags,
-                            'winners' => $like_comments_winers_data['winners'],
-                            'likes' => $like_comments_winers_data['like'] . " Likes",
-                            'comments' => $like_comments_winers_data['commnets'] . " Comments",
-                            'id' => $row->id,
-                            'sending_status' => $this->sending_status($row->id)
-                        );
-                    }
-                }
-            } else {
-
-                // If found in coments
-                $found = FALSE;
-
-                // Check if there are comments
-                if ($row->comments->count > 0) {
-                    foreach ($row->comments->data as $user_data) {
-
-                        // Check if user is in comments
-                        if ($this->session->userdata('user_id') == $user_data->from->id) {
-                            $output[] = array(
-                                'image' => $row->images->thumbnail->url,
-                                'date' => date('m-d-Y g:i a', $row->created_time),
-                                'caption' => $row->caption->text,
-                                'link' => $row->link,
-                                'hashtags' => $row->tags,
-                                'winners' => $this->get_winning_code_for_post($row->id, $user_data->from->id),
-                                'likes' => $row->likes->count . " Likes",
-                                'comments' => $row->comments->count . " Comments",
-                                'id' => $row->id,
-                                'sending_status' => $this->sending_status($row->id)
-                            );
-                            $found = TRUE;
-                            break;
-                        }
-                    }
-                }
-
-                // If user didn't commented check if there is likes
-                if (!$found) {
-                    if ($row->likes->count > 0) {
-                        foreach ($row->likes->data as $user_data) {
-
-                            // Check if user liked post
-                            if ($this->session->userdata('user_id') == $user_data->id) {
-                                $output[] = array(
-                                    'image' => $row->images->thumbnail->url,
-                                    'date' => date('m-d-Y g:i a', $row->created_time),
-                                    'caption' => $row->caption->text,
-                                    'link' => $row->link,
-                                    'hashtags' => $row->tags,
-                                    'winners' => $this->get_winning_code_for_post($row->id, $user_data->id),
-                                    'likes' => $row->likes->count . " Likes",
-                                    'comments' => $row->comments->count . " Comments",
-                                    'id' => $row->id,
-                                    'sending_status' => $this->sending_status($row->id)
-                                );
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        	// Prepare data for page
+        	foreach ($data->data as $row) {
+					
+				//$like_comments_winers_data = $this->get_winners($row->id);
+					
+                $output[] = array(
+                    'image' => $row->images->low_resolution->url,
+                    'date' => date('m-d-Y g:i a', $row->created_time),
+                    'caption' => ($row->caption === null) ? '' : $row->caption->text,
+                    'link' => $row->link,
+                    'hashtags' => $row->tags,
+                    //'winners' => $like_comments_winers_data['winners'],
+                    'likes' => $row->likes->count . " Likes",
+                    'comments' => $row->comments->count . " Comments",
+                   	'id' => $row->id,
+                    'sending_status' => $this->sending_status($row->id)
+                );
+        	}
+			
+			$data = $this->pagination($data, 90);
+			if(!(is_object($data) === TRUE)){
+				$pagination = FALSE;
+			}
+		}
 
         return $output;
     }
@@ -312,6 +258,8 @@ class Model_instagram extends CI_Model {
 				}
         	} else if($this->session->userdata('subscription_status') == 'Active'){
         		$data['email'] = $row->email . '<br />';
+        	} else {
+        		$data['email'] = $row->email . '<br />';
         	}
             $winners[] = $data;
 			if($row->type == 'C'){
@@ -352,15 +300,22 @@ class Model_instagram extends CI_Model {
         return $code;
     }
 	
-	// Return access token if exists
-	private function get_access_token(){
+	// Return user access token if exists
+	private function get_user_access_token($inst_id){
 		
 		$row = $this->db->select('*')
-			->where('name', 'access_token_instagram')
-			->get(TBL_OPTIONS)
+			->where('inst_id', $inst_id)
+			->get(TBL_USERS)
 			->row();
 			
-		return isset($row->name) ? $row : null;
+		return isset($row->username) ? $row : null;
+	}
+	
+	// Update user access token
+	private function update_user_access_token($inst_id, $update){
+		
+		$this->db->where('inst_id', $inst_id);
+        $this->db->update(TBL_USERS, $update);
 	}
 
 	// Check for email template

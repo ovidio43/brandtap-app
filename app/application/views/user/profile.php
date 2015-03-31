@@ -20,7 +20,6 @@
 				data: { 'post_id' : post_id },
 				dataType: 'json',
 				success: function(res) {
-					//CKEDITOR.instances.email_body.setData(res['message']);
 					if(res['template_custom'] == 0){
 						CKEDITOR.instances.email_body.setData('<h1 style="color: rgb(170, 170, 170); font-style: italic;">Customize Your Email Body</h1>');
 						CKEDITOR.instances.email_body.on('focus', function(){
@@ -103,6 +102,15 @@
 			}
 		})
 		
+		jQuery('#brand-selection').on('change', function(event){
+			 var optionSelected = $("option:selected", this);
+   		 	 var valueSelected = this.value;
+   		 	 if(valueSelected > 0){
+   		 	 	var url = '<?= site_url('user/profile') ?>/' + valueSelected;
+   		 	 	window.location.replace(url);	
+   		 	 }
+		})
+		
 		$.fn.modal.Constructor.prototype.enforceFocus = function () {
     		modal_this = this
     		$(document).on('focusin.modal', function (e) {
@@ -114,6 +122,10 @@
     		})
 		};
 	});
+	
+	function show_hashtags(post_id){
+		jQuery('#hashtags-div-' + post_id).css('display', 'block');
+	}
 </script>
 <style type="text/css">
 	.onoffswitch {
@@ -192,11 +204,25 @@
     	margin-top: 1px;
     }
 </style>
-<? if($brand == 1): ?>
+<? if($admin == 1): ?>
 	<div class="page-header text-left">
-    	<h3><small>
-    		List of your posts that use #BrandTap referral program
+    	<h3 style="display: inline-block"><small>
+    		Select brand: 
     	</small></h3>
+    	<div style="display: inline-block">
+    		<select id="brand-selection">
+    			<option value="0" <? if($brand == ''): ?> selected <? endif ?>>-------</option>
+    			<? if(count($brand_options)): ?>
+    				<? foreach($brand_options as $key => $value): ?>	
+    					<? if($brand == $value): ?>
+    						<option value="<?= $key ?>" selected><?= $value ?></option>
+    					<? else: ?>
+    						<option value="<?= $key ?>"><?= $value ?></option>
+    					<? endif ?>
+    				<? endforeach ?>
+    			<? endif ?>
+    		</select>
+    	</div>
 	</div>
 
 	<!--<div class="row j-title">
@@ -230,10 +256,10 @@
 			        	<table class="table table-bordered table-hover text-left">
 			            	<thead>
 			                	<tr class="active">
-			                    	<th class="text-center" style="width: 100px"><?= strtoupper('Post details'); ?> </th>
-			                    	<th class="text-center"><?= strtoupper('Username'); ?></th>
-			                    	<th class="text-center"><?= strtoupper('Email'); ?></th>
-			                    	<th class="text-center" style="width: 11%;"><?= strtoupper('Promo Codes Awarded'); ?> </th>
+			                    	<th class="text-center"><?= strtoupper('Post details'); ?> </th>
+			                    	<!--<th class="text-center"><?= strtoupper('Username'); ?></th>-->
+			                    	<!--<th class="text-center"><?= strtoupper('Email'); ?></th>-->
+			                    	<!--<th class="text-center" style="width: 11%;"><?= strtoupper('Promo Codes Awarded'); ?> </th>-->
 			                    	<!--<th class="text-center"><?= strtoupper('Hashtags'); ?> </th>-->
 			                    	<th class="text-center"><?= strtoupper('Stats'); ?> </th>
 			                    	<th class="text-center"><?= strtoupper('Send Email'); ?></th>
@@ -244,20 +270,27 @@
 			                    	<tr <?=!$row['sending_status'] ? ' style="background: #F8E0E0" ' : ' style="background: #E6F8E0"'?> 
 			                    		id="tbl-row-<?= $row['id'] ?>">
 			                        	<td>
-			                            	<div>
+			                            	<div style="float: left">
 			                                	<a href="<?= $row['link'] ?>" class="thumbnail" style="margin-bottom: 5px;">
 			                                    	<img class="img-rounded img-responsive" src="<?= $row['image'] ?>" alt="<?= $row['caption'] ?>">
-			                                	</a>                            
-			                                	<?= $row['date'] ?>
-			                                	<p>
-			                                		<?php foreach ($row['hashtags'] as $tag) : ?>
-			                                			#<?= ucfirst($tag) ?><br />
-			                           			 	<?php endforeach ?>
-			                                		<a href="<?= $row['link'] ?>">View on Instagram</a>
-			                                	</p>
+			                                	</a>
+			                                </div>
+			                                <div style="float: left"> 
+			                                	<div style="margin-left: 15px">                           
+			                                		<?= $row['date'] ?>
+			                                		<p>
+			                                			<a href="<?= $row['link'] ?>">View on Instagram</a><br />
+			                                			<a onclick="show_hashtags('<?= $row['id'] ?>')">View hashtags</a>
+			                                			<div id="hashtags-div-<?= $row['id'] ?>" style="display: none">
+			                            					<?php foreach ($row['hashtags'] as $tag) : ?>
+			                                					#<?= ucfirst($tag) ?><br />
+			                           			 			<?php endforeach ?>
+			                           			 		</div>
+			                                		</p>
+			                                	</div>
 			                            	</div>
 			                        	</td>
-	                        			<td>
+	                        			<!--<td>
 	                        				<?php foreach($row['winners'] as $data) : ?>
 	                        					<?= $data['username'] ?>
 	                        				<?php endforeach ?>
@@ -271,13 +304,8 @@
 	                        				<?php foreach($row['winners'] as $data) : ?>
 	                        					<?= $data['code'] ?>
 	                        				<?php endforeach ?>
-	                        			</td>
-			                        	<!--<td>
-			                            	<?php foreach ($row['hashtags'] as $tag) : ?>
-			                                	<p><?= $tag ?></p>
-			                            	<?php endforeach ?>	
-			                        	</td>-->
-			                        	<td>                       
+	                        			</td>-->
+			                        	<td class="text-center">                       
 			                            	<p><span class="badge"><?= $row['likes'] ?></span></p>
 			                            	<p><span class="badge"><?= $row['comments'] ?></span></p>
 			                        	</td>
@@ -313,7 +341,11 @@
             	<? else: ?>
                 	<div class="row">
                     	<div class="col-md-4 text-left">
-                        	<p style="margin:10px 0; font-weight: bold;">You have no promotions yet!</p>
+                    		<? if(isset($brand) && $brand != ''): ?>
+                        		<p style="margin:10px 0; font-weight: bold;">Brand <?= $brand ?> have no promotions yet!</p>
+                        	<? else: ?>
+                        		<p style="margin:10px 0; font-weight: bold;">Select brand to see it's promotions</p>
+                        	<? endif ?>
                     	</div>
                 	</div>
             	<? endif ?>
@@ -443,8 +475,7 @@
 <? else: ?>
 	<div class="page-header text-left">
     	<h3><small>
-    		Welcome <?= $username ?>. You are successfully registered on BrandTap application and you are able to receive emails and 
-    		promotions from brands using this application.
+    		You are successfully registered on BrandTap.co
     	</small></h3>
 	</div>
 <? endif ?>

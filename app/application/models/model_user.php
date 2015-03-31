@@ -36,11 +36,26 @@ class Model_user extends CI_Model {
             'inst_id' => $data->user->id,
             'image_url' => $data->user->profile_picture,
             'brand' => 0,
-            'email' => ''
+            'email' => '',
+            'access_token' => $data->access_token
         );
 
         $this->db->insert(TBL_USERS, $user_data);
     }
+	
+	// Create user from brand site
+	public function create_user_from_brand_site($data){
+		$user_data = array(
+			'username' => $data['username'],
+			'inst_id' => $data['inst_id'],
+			'image_url' => $data['image_url'],
+			'from_brand' => $data['from_brand'],
+			'email' => $data['email'],
+			
+		);
+		
+		$this->db->insert(TBL_USERS, $user_data);
+	}
 
     // Get user mail
     public function get_user_email($inst_id = 0) {
@@ -101,21 +116,44 @@ class Model_user extends CI_Model {
     public function email_activation()
     {
         $email = $this->input->post('email');
-        $brand = $this->input->post('chbBrand');
 
         $this->load->library('form_validation');
         $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 
         if ($this->form_validation->run() !== FALSE){
-            $this->add_email($email, $brand);
-			if($brand === 'on'){
-				$this->send_welcome_email($email);	
-			}
+            $this->add_email($email);
+			$this->send_welcome_email($email);
+			$this->add_new_brands_count(1);	
             redirect('user/profile');
         } else {
             redirect('user/register_email?error=Invalid+email+address');
         }
     }
+	
+	public function add_new_brands_count($count){
+		
+		$row = $this->db->select('*')
+				->where('name', 'new_users_emails_sent')
+				->get(TBL_OPTIONS)
+				->row();
+		
+		if(isset($row->name)){
+			$update = array(
+				'data' => $count + $row->data
+			);
+			
+			$this->db->where('name', 'new_users_emails_sent');
+			$this->db->update(TBL_OPTIONS, $update);
+			
+		} else {
+			$insert = array(
+				'name' => 'new_users_emails_sent',
+				'data' => $count
+			);
+			
+			$this->db->insert(TBL_OPTIONS, $insert);
+		}
+	}
 
     public function send_welcome_email($email)
     {
@@ -124,7 +162,7 @@ class Model_user extends CI_Model {
         //$message = "<p>Hi</p><p>Welcome to the best online tool ever... TESTING...</p>";
         $message = $this->load->view('email/email_welcome', null, TRUE);
 
-        $mail_success = send_email($to,$subject,$message);
+        $mail_success = send_email($to,$subject,$message,'');
         return $mail_success;
     }
 
@@ -163,10 +201,10 @@ class Model_user extends CI_Model {
     }
 
     // Adding user emeil
-    private function add_email($email, $brand) {
+    private function add_email($email) {
         $data = array(
             'email' => $email,
-            'brand' => $brand === 'on' ? 1 : 0
+            'brand' => 1
         );
 
         $this->db->where('inst_id', $this->session->userdata('user_id'));
@@ -205,7 +243,7 @@ class Model_user extends CI_Model {
     }
 
     // Get all brands id-s
-    public function get_all_brands() {
+    public function get_all_brands_inst_id() {
         $brands = array();
 
         $this->db->select('inst_id');
@@ -220,6 +258,23 @@ class Model_user extends CI_Model {
 
         return $brands;
     }
+	
+	// Get all brends
+	public function get_all_brands(){
+		$brands = array();
+
+        $this->db->select('id,username');
+        $this->db->from(TBL_USERS);
+        $this->db->where('active', 1);
+        $this->db->where('brand', 1);
+        $query = $this->db->get();
+
+        foreach ($query->result() as $row) {
+            $brands[$row->id] = $row->username;
+        }
+
+        return $brands;
+	}
 
     // Get asked users if they exists
     public function get_users_in($users) {
@@ -258,42 +313,42 @@ class Model_user extends CI_Model {
     }
 
     // Add new winners
-    public function add_new_winners($users, $post_id, $brand, $test = FALSE, $user_data = array()) {
+    public function add_new_winners($users, $post_id, $brand_name, $test = FALSE, $user_data = array(), $brand) {
         foreach ($users as $inst_id) {
         	
 			// Get email data
             $email_data = $this->get_email_template($post_id);
+			
+			$sending_status = 0;
 
 			$user = $this->get_user($inst_id);
 				
 			if(!$test){
 				$code = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $email_data['code_lenght']);
-				
+					
 				// Subject
 				$subject = str_replace('{name}', $user->username, $email_data['subject']);
-				$subject = str_replace('{brand}', $brand, $subject);
+				$subject = str_replace('{brand}', $brand->username, $subject);
 			
 				// Message
 				$message = str_replace('{name}', $user->username, $email_data['message']);
 				$message = str_replace('{coupon_code}', $code, $message);
-				$message = str_replace('{brand}', $brand, $message);
+				$message = str_replace('{brand}', $brand->username, $message);
 			} else {
 				$message = $email_data['message'];
 				$subject = $email_data['subject'];
 			}
 
-            // Send activation link to user
-//          $header = "From: " . FROM_EMAIL . "\r\n";
-//          $header .= "BCC: mrvica83mm@yahoo.com,triva89@yahoo.com\r\n";
-//          $header .= "MIME-Version: 1.0\r\n";
-//          $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-
 			$to = $user->email;
-            //log_message('error', "$to , $subject, message , $header");
-//          $mail_success = mail($to, $subject, $message, $header);
+
 			if($email_data['status'] == 1 || $test){
-				$mail_success = send_email($to,$subject,$message);
-           		log_message('error', 'mail success=' . print_r($mail_success, 1));	
+				if($test || $brand->email_frequency == 1){
+					$mail_success = send_email($to,$subject,$message,$brand);
+           			log_message('error', 'mail success=' . print_r($mail_success, 1));
+					$sending_status = 1;	
+				} else {
+					$sending_status = 0;
+				}	
 			}
 			
 			if(!$test){
@@ -302,7 +357,7 @@ class Model_user extends CI_Model {
                 	'inst_id' => $inst_id,
                 	'code' => $code,
                 	'type' => $user_data[$user->inst_id],
-                	'sent_status' => $email_data['status'] == 1 ? 1 : 0
+                	'sent_status' => $sending_status
             	);
 
             	$this->db->insert(TBL_POST_WINNERS, $data);	
@@ -310,7 +365,7 @@ class Model_user extends CI_Model {
         }
     }
 
-    // Get user username
+    // Get user by instagram id
     public function get_user($inst_id) {
         $row = $this->db->select('*')
                 ->where('inst_id', $inst_id)
@@ -319,16 +374,26 @@ class Model_user extends CI_Model {
 
         return isset($row->username) ? $row : null;
     }
+	
+	// Get user by username
+	public function get_user_by_username($username){
+		$row = $this->db->select('*')
+				->where('username', $username)
+				->get(TBL_USERS)
+				->row();
+		
+		return isset($row->username) ? $row : null;
+	}
 
     // Check if user is brand
-    public function is_user_brand() {
+    public function get_user_by_id($id) {
 
-        $row = $this->db->select('brand')
-                ->where('inst_id', $this->session->userdata('user_id'))
+        $row = $this->db->select('*')
+                ->where('id', $id)
                 ->get(TBL_USERS)
                 ->row();
 
-        return $row->brand == 0 ? FALSE : TRUE;
+        return isset($row->username) ? $row : null;
     }
 
     // User logout
@@ -472,20 +537,8 @@ class Model_user extends CI_Model {
 		}
 	}
 	
-	// Database update 2015-01-30
-	public function update_2015_01_30($post_id, $user_inst_id, $type){
-		
-		$data = array(
-			'type' => $type
-		);
-		
-		$this->db->where('post_id', $post_id);
-		$this->db->where('inst_id', $user_inst_id);
-		$this->db->update(TBL_POST_WINNERS, $data);
-	}
-	
 	// Send emails to users that are in database but didn't get email
-	public function send_emails_that_are_not_sent($post_id, $brand){
+	public function send_emails_that_are_not_sent($post_id, $brand, $brand_data){
 		
 		$email_data = $this->get_email_template($post_id);
 		
@@ -518,9 +571,288 @@ class Model_user extends CI_Model {
 			
 				$to = $row->email;
 			
-				$mail_success = send_email($to,$subject,$message);
+				$mail_success = send_email($to,$subject,$message,$brand_data);
            		log_message('error', 'mail success=' . print_r($mail_success, 1));
 			}
+		}
+	}
+
+	// Add post details if post is not in database
+	public function add_post($data, $brand_id){
+		
+		// Check if post exists
+		$exists = $this->post_exists($data->id);
+		
+		if(!$exists){
+			$hashtags = '';
+			foreach($data->tags as $tag){
+				$hashtags .= $tag . ',';
+			}
+			$hashtags = substr_replace($hashtags, "", -1);
+			
+			$post_details = array(
+				'post_id' => $data->id,
+				'brand_id' => $brand_id,
+				'image_url' => $data->images->low_resolution->url,
+				'caption' => $data->caption != null ? $data->caption->text : null,
+				'link' => $data->link,
+				'hashtags' => $hashtags,
+				'date' => date('Y-m-d H:i:s', $data->created_time),
+				'likes' => $data->likes->count,
+				'comments' => $data->comments->count
+			);
+			
+			$this->db->insert(TBL_POST_DETAILS, $post_details);
+		} else {
+			$post_details = array(
+				'likes' => $data->likes->count,
+				'comments' => $data->comments->count
+			);
+			
+			$this->db->where('post_id', $data->id);
+			$this->db->update(TBL_POST_DETAILS, $post_details);
+		}
+	}
+	
+	// Check if post details exists in database
+	private function post_exists($post_id){
+		
+		$this->db->from(TBL_POST_DETAILS);
+		$this->db->where('post_id', $post_id);
+		
+		if($this->db->count_all_results() == 0){
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
+	// Set frequency for brand
+	public function set_frequency($brand_id){
+		
+		$frequency = $this->input->post('frequency');
+		
+		$update = array(
+			'email_frequency' => $frequency
+		);
+		
+		$this->db->where('id', $brand_id);
+		$this->db->update(TBL_USERS, $update);
+		
+		if($frequency > 1){
+			$this->set_frequency_time($brand_id);
+		}
+	}
+	
+	// Set frequency time
+	private function set_frequency_time($brand_id){
+		
+		$data = array(
+			'date' => date('Y-m-d H:i:s')
+		);
+		
+		if(!$this->frequency_time_exists($brand_id)){
+			$data['brand_id'] = $brand_id;
+			$this->db->insert(TBL_EMAIL_FREQUENCY, $data);
+		} else {
+			$this->db->where('brand_id', $brand_id);
+			$this->db->update(TBL_EMAIL_FREQUENCY, $data);
+		}
+	}
+	
+	// Check if brand have frequency time in database
+	private function frequency_time_exists($brand_id){
+		
+		$this->db->from(TBL_EMAIL_FREQUENCY);
+		$this->db->where('brand_id', $brand_id);
+		
+		if($this->db->count_all_results() == 0){
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
+	// Get frequency time
+	public function get_frequency_time($brand_id){
+		
+		$row = $this->db->select('*')
+				->where('brand_id', $brand_id)
+				->get(TBL_EMAIL_FREQUENCY)
+				->row();
+				
+		return isset($row->brand_id) ? $row : null;
+	}
+	
+	// Get multi email template
+	public function get_multi_email_template($brand_id){
+		
+		$template = $this->multi_email_template_exists($brand_id);
+		
+		if($template === null){
+			$subject = 'Hi {user}';
+			$body = '<p>' .
+					'Hi {user}!<br />' .
+					'You liked {post-number} of brand {brand}. Here you can see what you liked:<br /><br />' .
+					'{post-list}<br /><br />' .
+					'Best regards<br />' .
+					'{brand}<br />' .
+					'{brand-email}<br />' .
+					'</p>';
+			$post_list = '<p>' .
+						'<div style="float: left; margin: 10px;">' .
+							'{post-image}' .
+						'</div>' .
+						'<div style="float: left; margin: 10px;">' .
+							'<div>' .
+								'<p>{post-date}</p>' .
+								'<p>{post-caption}</p>' .
+							'</div>' .
+						'</div>' .
+						'<div style="float: left; margin: 10px;">' .
+							'<p>{post-url}</p>' .
+						'</div>' . 
+						'<p/>' .
+						'<div style="clear: both></div>"';
+		} else {
+			$subject = $template->subject;
+			$body = $template->template;
+			$post_list = $template->post_list_template;
+		}
+		
+		$data = array(
+			'subject' => $subject,
+			'body' => $body,
+			'post_list' => $post_list
+		);
+		
+		return $data;
+	}
+	
+	// Check if multi email template exists
+	private function multi_email_template_exists($brand_id){
+		
+		$row = $this->db->select('*')
+				->where('brand_id', $brand_id)
+				->get(TBL_EMAIL_MULTI_TEMPLATE)
+				->row();
+				
+		return isset($row->brand_id) ? $row : null;
+	}
+
+	// Save multi email template
+	public function save_multi_email_template($brand_id, $subject, $email_body, $post_list_template){
+		
+		$template = $this->multi_email_template_exists($brand_id);
+		
+		$data = array(
+			'subject' => $subject,
+			'template' => $email_body,
+			'post_list_template' => $post_list_template
+		);
+		
+		if($template === null){
+			$data['brand_id'] = $brand_id;
+			$this->db->insert(TBL_EMAIL_MULTI_TEMPLATE, $data);
+		} else {
+			$this->db->where('brand_id', $brand_id);
+			$this->db->update(TBL_EMAIL_MULTI_TEMPLATE, $data);
+		}
+	}
+	
+	// Prepare and send frequency email
+	public function prepare_frequency_emails($brand){
+		
+		$time = $this->get_frequency_time($brand->id);
+		
+		if($time !== null){
+			$start_date = strtotime($time->date);
+			$end_date = strtotime(date('Y-m-d H:i:s', 
+				strtotime($time->date . '+' . ($brand->email_frequency == 2 ? '1 days' : ($brand->email_frequency == 3 ? '7 days' : '0 days')))));
+			if($start_date < $end_date){
+				if($end_date < strtotime(date('Y-m-d H:i:s'))){
+				
+					$posts_between = $this->get_posts_between(date('Y-m-d H:i:s', $start_date), date('Y-m-d H:i:s', $end_date), $brand->inst_id);
+					
+					if(count($posts_between) > 0){
+						$this->send_multi_part_email($posts_between, $brand);	
+					}
+					
+					// Update time
+					$this->set_frequency_time($brand->id);
+				}	
+			}
+		}
+	}
+	
+	// Get all posts that are liked or commented between dates
+	private function get_posts_between($start_date, $end_date, $brand_id){
+		
+		$result = array();
+		
+		$this->db->select(TBL_POST_DETAILS . '.post_id,' . TBL_POST_DETAILS . '.image_url,' . TBL_POST_DETAILS . '.caption,' .
+						TBL_POST_DETAILS . '.link,' . TBL_POST_DETAILS . '.date,' . TBL_POST_WINNERS . '.inst_id,' . TBL_POST_WINNERS . '.type');
+		$this->db->from(TBL_POST_DETAILS);
+		$this->db->join(TBL_POST_WINNERS, TBL_POST_DETAILS . '.post_id = ' . TBL_POST_WINNERS . '.post_id');
+		$this->db->where(TBL_POST_DETAILS . '.brand_id', $brand_id);
+		$this->db->where(TBL_POST_WINNERS . '.created <', $end_date);
+		$this->db->where(TBL_POST_WINNERS . '.created >', $start_date);
+		$query = $this->db->get();
+		
+		foreach($query->result() as $row){
+			if(!array_key_exists($row->inst_id, $result)){
+				$result[$row->inst_id] = array();
+			} 
+			array_push($result[$row->inst_id], array(
+				'post_id' => $row->post_id,
+				'image_url' => $row->image_url,
+				'caption' => $row->caption,
+				'link' => $row->link,
+				'type' => $row->type,
+				'date' => $row->date
+			));
+		}
+		
+		return $result;
+	} 
+
+	// Send milti part email
+	private function send_multi_part_email($data, $brand){
+		
+		$email_template = $this->get_multi_email_template($brand->id);
+		
+		foreach($data as $key => $value){
+			
+			$user = $this->get_user($key);
+			
+			$to = $user->email;
+			
+			$subject = str_replace('{user}', $user->username, $email_template['subject']);
+			
+			$email_body = str_replace('{user}', $user->username, $email_template['body']);
+			$email_body = str_replace('{brand}', $brand->username, $email_body);
+			$email_body = str_replace('{brand-email}', $brand->email, $email_body);
+			$email_body = str_replace('{post-number}', count($value), $email_body);
+			
+			$post_list = '';
+			
+			foreach($value as $post){
+				
+				$image = '<img src="' . $post['image_url'] . '" />';
+				$url = '<a href="' . $post['link'] . '">View on Instagram</a>';
+				
+				$temp = str_replace('{post-image}', $image, $email_template['post_list']);
+				$temp = str_replace('{post-date}', $post['date'], $temp);
+				$temp = str_replace('{post-caption}', $post['caption'], $temp);
+				$temp = str_replace('{post-url}', $url, $temp);
+				
+				$post_list .= $temp;
+			}
+			
+			$message = str_replace('{post-list}', $post_list, $email_body);
+			
+			$mail_success = send_email($to,$subject,$message,$brand);
+           	log_message('error', 'mail success=' . print_r($mail_success, 1));
 		}
 	}
 

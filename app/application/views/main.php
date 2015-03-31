@@ -3,6 +3,8 @@
     <head>
         <title><?= $document_title ?></title>
         <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <script src="//code.jquery.com/ui/1.11.3/jquery-ui.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
         <!-- Bootstrap CDN -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">   
@@ -14,32 +16,6 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
         <!----------Ckeditor-------------->
         <script type="text/javascript" src="<?= base_url() ?>third_party/ckeditor/ckeditor.js"></script>
-        <script>
-           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-            ga('create', 'UA-59392965-1', 'auto');
-            ga('send', 'pageview');
-
-        </script>
-        <!-- Facebook Conversion Code for BrandTap -->
-        <script>(function() {
-        var _fbq = window._fbq || (window._fbq = []);
-        if (!_fbq.loaded) {
-        var fbds = document.createElement('script');
-        fbds.async = true;
-        fbds.src = '//connect.facebook.net/en_US/fbds.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(fbds, s);
-        _fbq.loaded = true;
-        }
-        })();
-        window._fbq = window._fbq || [];
-        window._fbq.push(['track', '6019057518469', {'value':'0.01','currency':'USD'}]);
-       </script>
-        <noscript><img height="1" width="1" alt="" style="display:none" src="https://www.facebook.com/tr?ev=6019057518469&amp;cd[value]=0.01&amp;cd[currency]=USD&amp;noscript=1" /></noscript>
     </head>
     <body style="margin: 0 0 60px;">
         <div class="container">
@@ -65,7 +41,11 @@
                                     </button>
 
                                     <ul class="dropdown-menu j-full-width" role="menu" aria-labelledby="dropdownMenu1">
-                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Preferences</a></li>
+                                    	<li role="presentation"><a role="menuitem" tabindex="-1" href="<?= site_url('user/profile') ?>">Profile</a></li>
+                                    	<? if($brand_id != 0): ?>
+                                        	<li role="presentation"><a role="menuitem" tabindex="-1" href="<?= site_url('user/preferences/' . $brand_id) ?>">Preferences</a></li>
+                                        <? endif ?>
+                                        <li role="presentation"><a role="menuitem" tabindex="-1" href="<?= site_url('reports') ?>">Create report</a></li>
                                         <li role="presentation"><a role="menuitem" tabindex="-1" href="<?= site_url('user/logout') ?>">Logout</a></li>     
                                     </ul>
                                 </div>
@@ -90,13 +70,6 @@
         <!--</div>-->
     </footer>
 </div>
-    <script src="//platform.twitter.com/oct.js" type="text/javascript"></script>
-    <script type="text/javascript">
-            twttr.conversion.trackPid('l5hcf');</script>
-    <noscript>
-    <img height="1" width="1" style="display:none;" alt="" src="https://analytics.twitter.com/i/adsct?txn_id=l5hcf&p_id=Twitter" />
-    <img height="1" width="1" style="display:none;" alt="" src="//t.co/i/adsct?txn_id=l5hcf&p_id=Twitter" /></noscript>
-
 </body>
 
 </html>

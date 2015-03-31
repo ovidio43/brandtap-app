@@ -83,9 +83,9 @@ function set_active($page)
     return $is_active ? ' menu-active ' : "";
 }
 
-function send_email($to,$subject,$message)
+function send_email($to,$subject,$message,$brand)
 {
-    $header  = "From: " . FROM_EMAIL . "\r\n";
+    $header  = "From: " . ($brand == '' ? FROM_EMAIL : $brand->email) . "\r\n";
     $header .= "BCC: " . BCC_EMAIL . "\r\n";
     $header .= "MIME-Version: 1.0\r\n";
     $header .= "Content-Type: text/html; charset=ISO-8859-1\r\n";

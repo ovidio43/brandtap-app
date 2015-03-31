@@ -73,8 +73,7 @@
 
 <div class="row j-content" style="margin-top: 10px;">
 	<h3>
-		Sign up Now to Receive the Latest Buzz, Product Information,
-		Deals and Discounts Straight to your Inbox
+		Please provide the email address you would like us to send emails from.
 	</h3>
 	<p>&nbsp;</p>
 	<div class="col-sm-8 col-sm-offset-2">
@@ -91,7 +90,7 @@
                 		name="email" />
             	</div>
             </div>
-            <div class="form-group">
+            <!--<div class="form-group">
 				<div class="row">
 					<div class="col-md-12 brand-checkbox-container">
 						<p>&nbsp;</p>
@@ -107,7 +106,7 @@
 						</div>
 						<div class="brand-checkbox-clear"> </div>
 					</div>
-				</div>
+				</div>-->
             	<!--<div class="paggers">
                 	<a href="#home-forms" id="brand-yes" class="no-decore" onclick="jQuery('.tabs').removeClass('current');
                         jQuery('.tab-0').addClass('current');">
